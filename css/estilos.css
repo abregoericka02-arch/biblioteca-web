@@ -1,0 +1,1140 @@
+/* ==============================================================================
+   PROYECTO TECNOLOGÍA WEB: HOJA DE ESTILOS CSS3 - BIBLIOTECA MODERNA
+   Paleta: Marrón oscuro, Marrón café, Beige/Crema, Blanco cálido y Dorado suave
+   Diseño: Clásico acogedor, contemporáneo, interactivo y 100% responsivo
+   ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   GUÍA RÁPIDA DE ESTE ARCHIVO
+   - Cada sección está numerada (1 a 19) y explica qué parte de la página estiliza.
+   - Los colores y tamaños viven en las VARIABLES de la sección 1 (:root).
+     Para cambiar la paleta de toda la página, edita solo esa sección.
+   - Las secciones "Mejoras" y "Correcciones de contraste" (al final) agregan:
+     portada de bienvenida, gráficos de barras, ventana de detalle, filtro de
+     tablas y el MODO OSCURO (se activa con data-tema="oscuro" en <html>).
+   - Las clases se usan desde js/app.js (por ejemplo: .tarjeta, .btn, .badge,
+     .tabla-biblioteca, .grid-libros).
+   ------------------------------------------------------------------------------ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* --- 1. VARIABLES CSS (CUSTOM PROPERTIES) ---
+   Colores, sombras, bordes y tipografías reutilizables con var(--nombre). */
+:root {
+    /* Paleta Principal Solicitada */
+    --marron-oscuro: #25160F;       /* Navegación, encabezados y contrastes clave */
+    --marron-profundo: #1D110B;     /* Fondo de footer y detalles ultraoscuros */
+    --marron-cafe: #5D3A20;         /* Botones principales y acciones primarias */
+    --marron-cafe-hover: #462A15;   /* Estado hover de botones primarios */
+    --marron-medio: #7C5335;        /* Subtítulos y bordes oscuros */
+    
+    --crema-fondo: #FBF8F2;         /* Fondo general de la aplicación */
+    --crema-card: #FFFDF9;          /* Fondo de tarjetas y paneles */
+    --beige-suave: #F3ECE0;         /* Fondos secundarios, tablas alternas */
+    --beige-borde: #E3D6C3;         /* Líneas divisorias y bordes elegantes */
+    
+    --dorado-suave: #C79853;        /* Acentos decorativos, estrellas y bordes dorados */
+    --dorado-hover: #D6A864;        /* Hover dorado */
+    --dorado-tenue: #F6EEDF;        /* Badges e insignias doradas suaves */
+    
+    /* Estados Funcionales */
+    --verde-exito: #2D6A4F;         /* Disponible, activo, aprobado */
+    --verde-fondo: #E8F5E9;
+    --rojo-peligro: #9B2226;        /* Vencido, extraviado, eliminar */
+    --rojo-fondo: #FFEBEE;
+    --amarillo-alerta: #B07D14;     /* Mantenimiento, advertencia */
+    --amarillo-fondo: #FFF8E1;
+    --azul-info: #1D3557;           /* Notificaciones informativas */
+    --azul-fondo: #E0F2FE;
+
+    /* Tipografías */
+    --fuente-titulos: 'Cinzel', 'Lora', Georgia, serif;
+    --fuente-texto: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --fuente-lectura: 'Lora', Georgia, serif;
+
+    /* Sombras y Elevaciones */
+    --sombra-sm: 0 2px 4px rgba(37, 22, 15, 0.05);
+    --sombra-md: 0 4px 12px rgba(37, 22, 15, 0.08);
+    --sombra-lg: 0 10px 25px rgba(37, 22, 15, 0.12);
+    --sombra-dorada: 0 0 15px rgba(199, 152, 83, 0.25);
+
+    /* Transiciones */
+    --transicion: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --radio-sm: 6px;
+    --radio-md: 10px;
+    --radio-lg: 16px;
+}
+
+/* --- 2. RESET Y ESTILOS BASE ---
+   Quita márgenes por defecto del navegador y define fuente y fondo general. */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--fuente-texto);
+    background-color: var(--crema-fondo);
+    color: #2D2722;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 3. TIPOGRAFÍA Y JERARQUÍA ---
+   Tamaños y fuentes de títulos (h1-h4), párrafos y enlaces. */
+h1, h2, h3, h4, .fuente-serif {
+    font-family: var(--fuente-titulos);
+    color: var(--marron-oscuro);
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+}
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.1rem; }
+
+p {
+    margin-bottom: 0.85rem;
+    color: #4A4036;
+}
+
+a {
+    color: var(--marron-cafe);
+    text-decoration: none;
+    transition: var(--transicion);
+}
+
+a:hover {
+    color: var(--dorado-suave);
+}
+
+/* --- 4. CONTENEDOR Y LAYOUT ---
+   Ancho máximo centrado (.contenedor) y cuadrículas de la página. */
+.contenedor {
+    width: 100%;
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.contenedor-estrecho {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.main-content {
+    flex: 1 0 auto;
+    padding-top: 2rem;
+    padding-bottom: 3.5rem;
+}
+
+/* --- 5. NAVEGACIÓN Y CABECERA (HEADER) ---
+   Barra superior con el logo y el menú (#nav). Incluye el menú desplegable móvil. */
+.navbar-biblioteca {
+    background: linear-gradient(135deg, var(--marron-oscuro) 0%, #351F15 100%);
+    color: #FFFFFF;
+    border-bottom: 3px solid var(--dorado-suave);
+    box-shadow: var(--sombra-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-contenedor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+}
+
+.logo-biblioteca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-family: var(--fuente-titulos);
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.logo-icono {
+    color: var(--dorado-suave);
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.logo-texto span {
+    color: var(--dorado-suave);
+    font-size: 0.85rem;
+    display: block;
+    font-family: var(--fuente-texto);
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 8px;
+}
+
+.nav-item a {
+    color: #EBDAC5;
+    padding: 8px 14px;
+    border-radius: var(--radio-sm);
+    font-size: 0.92rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transicion);
+}
+
+.nav-item a:hover, 
+.nav-item a.activo {
+    color: #FFFFFF;
+    background-color: rgba(199, 152, 83, 0.2);
+    border-bottom: 2px solid var(--dorado-suave);
+}
+
+.nav-usuario {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-rol {
+    background-color: var(--dorado-suave);
+    color: var(--marron-oscuro);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-notificacion {
+    background-color: var(--rojo-peligro);
+    color: #FFFFFF;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+
+.btn-toggle-menu {
+    display: none;
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* --- 6. BOTONES Y ACCIONES ---
+   Clases .btn, .btn-primario, .btn-dorado, .btn-outline, .btn-exito, .btn-peligro, .btn-sm. */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.65rem 1.35rem;
+    font-size: 0.95rem;
+    font-family: var(--fuente-texto);
+    font-weight: 600;
+    border-radius: var(--radio-md);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: var(--transicion);
+    text-decoration: none;
+    box-shadow: var(--sombra-sm);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Botón Marrón Café Principal */
+.btn-primario {
+    background: linear-gradient(145deg, var(--marron-cafe), var(--marron-cafe-hover));
+    color: #FFFFFF;
+    border: 1px solid rgba(199, 152, 83, 0.3);
+}
+
+.btn-primario:hover {
+    background: linear-gradient(145deg, #744928, var(--marron-cafe));
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(93, 58, 32, 0.35);
+    border-color: var(--dorado-suave);
+}
+
+/* Botón Dorado Secundario */
+.btn-dorado {
+    background: linear-gradient(145deg, var(--dorado-suave), #B58641);
+    color: var(--marron-oscuro);
+    font-weight: 700;
+}
+
+.btn-dorado:hover {
+    background: linear-gradient(145deg, #D4A865, var(--dorado-suave));
+    box-shadow: var(--sombra-dorada);
+    color: var(--marron-oscuro);
+}
+
+/* Botón Esquema / Outline */
+.btn-outline {
+    background-color: transparent;
+    color: var(--marron-cafe);
+    border: 1.5px solid var(--marron-cafe);
+}
+
+.btn-outline:hover {
+    background-color: var(--marron-cafe);
+    color: #FFFFFF;
+}
+
+.btn-outline-dorado {
+    background-color: transparent;
+    color: var(--dorado-suave);
+    border: 1.5px solid var(--dorado-suave);
+}
+
+.btn-outline-dorado:hover {
+    background-color: var(--dorado-suave);
+    color: var(--marron-oscuro);
+}
+
+.btn-peligro {
+    background-color: var(--rojo-peligro);
+    color: #FFFFFF;
+}
+
+.btn-peligro:hover {
+    background-color: #7D1B1E;
+    color: #FFFFFF;
+}
+
+.btn-exito {
+    background-color: var(--verde-exito);
+    color: #FFFFFF;
+}
+
+.btn-exito:hover {
+    background-color: #204C38;
+    color: #FFFFFF;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+    border-radius: var(--radio-sm);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* --- 7. TARJETAS Y CONTENEDORES VISUALES ---
+   Cajas blancas con sombra (.tarjeta) que agrupan cada bloque de contenido. */
+.tarjeta {
+    background-color: var(--crema-card);
+    border: 1px solid var(--beige-borde);
+    border-radius: var(--radio-lg);
+    box-shadow: var(--sombra-sm);
+    padding: 1.75rem;
+    transition: var(--transicion);
+    position: relative;
+}
+
+.tarjeta:hover {
+    box-shadow: var(--sombra-md);
+}
+
+.tarjeta-dorada {
+    border-top: 4px solid var(--dorado-suave);
+}
+
+.tarjeta-marron {
+    border-top: 4px solid var(--marron-cafe);
+}
+
+.tarjeta-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--beige-borde);
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.tarjeta-titulo {
+    font-size: 1.25rem;
+    color: var(--marron-oscuro);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tarjeta-titulo i {
+    color: var(--dorado-suave);
+}
+
+/* --- 8. HERO BANNER Y BIENVENIDA ---
+   Banner grande de la pantalla de inicio. */
+.hero-biblioteca {
+    background: linear-gradient(rgba(37, 22, 15, 0.82), rgba(37, 22, 15, 0.9)), 
+                url('https://images.unsplash.com/photo-1507842229450-76905949c321?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+    color: #FFFFFF;
+    border-radius: var(--radio-lg);
+    padding: 3.5rem 2.5rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--dorado-suave);
+    box-shadow: var(--sombra-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-biblioteca::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px solid rgba(199, 152, 83, 0.35);
+    border-radius: calc(var(--radio-lg) - 4px);
+    pointer-events: none;
+}
+
+.hero-titulo {
+    font-size: 2.5rem;
+    color: #FFFFFF;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.hero-titulo span {
+    color: var(--dorado-suave);
+}
+
+.hero-subtitulo {
+    font-size: 1.15rem;
+    color: #EBDAC5;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+    font-family: var(--fuente-lectura);
+}
+
+.hero-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* --- 9. MÉTRICAS Y ESTADÍSTICAS (KPIs) ---
+   Tarjetas con números del panel (Libros, Prestados, Vencidos...). */
+.grid-metricas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.tarjeta-metrica {
+    background-color: var(--crema-card);
+    border: 1px solid var(--beige-borde);
+    border-radius: var(--radio-md);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: var(--sombra-sm);
+    transition: var(--transicion);
+}
+
+.tarjeta-metrica:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-md);
+    border-color: var(--dorado-suave);
+}
+
+.metrica-icono {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radio-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.metrica-icono.cafe {
+    background-color: var(--beige-suave);
+    color: var(--marron-cafe);
+}
+
+.metrica-icono.dorado {
+    background-color: var(--dorado-tenue);
+    color: var(--dorado-suave);
+}
+
+.metrica-icono.verde {
+    background-color: var(--verde-fondo);
+    color: var(--verde-exito);
+}
+
+.metrica-icono.rojo {
+    background-color: var(--rojo-fondo);
+    color: var(--rojo-peligro);
+}
+
+.metrica-info h4 {
+    font-size: 0.85rem;
+    color: #7A6F64;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--fuente-texto);
+}
+
+.metrica-valor {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--marron-oscuro);
+    line-height: 1.1;
+    font-family: var(--fuente-titulos);
+}
+
+/* --- 10. CATÁLOGO Y TARJETAS DE LIBROS ---
+   Cuadrícula .grid-libros y cada tarjeta de libro (.tarjeta-libro). */
+.grid-libros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.75rem;
+    margin-top: 1.5rem;
+}
+
+.tarjeta-libro {
+    background-color: var(--crema-card);
+    border: 1px solid var(--beige-borde);
+    border-radius: var(--radio-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--sombra-sm);
+    transition: var(--transicion);
+    position: relative;
+}
+
+.tarjeta-libro:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--sombra-lg);
+    border-color: var(--dorado-suave);
+}
+
+.libro-portada-wrapper {
+    position: relative;
+    width: 100%;
+    height: 310px;
+    background-color: var(--beige-suave);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.libro-portada {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.tarjeta-libro:hover .libro-portada {
+    transform: scale(1.05);
+}
+
+.libro-categoria-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(37, 22, 15, 0.85);
+    backdrop-filter: blur(4px);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(199, 152, 83, 0.4);
+}
+
+.libro-cuerpo {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.libro-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--marron-oscuro);
+    margin-bottom: 0.35rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6rem;
+}
+
+.libro-autor {
+    font-size: 0.88rem;
+    color: var(--marron-medio);
+    margin-bottom: 0.75rem;
+    font-family: var(--fuente-lectura);
+    font-style: italic;
+}
+
+.libro-disponibilidad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--beige-borde);
+    margin-top: auto;
+    margin-bottom: 0.85rem;
+}
+
+/* --- 11. FORMULARIOS Y BÚSQUEDA ---
+   Campos (.form-control), etiquetas y la cuadrícula de búsqueda (.busqueda-grid). */
+.form-grupo {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--marron-oscuro);
+    margin-bottom: 0.4rem;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 0.7rem 0.95rem;
+    font-size: 0.95rem;
+    font-family: var(--fuente-texto);
+    color: #2D2722;
+    background-color: #FFFFFF;
+    border: 1.5px solid var(--beige-borde);
+    border-radius: var(--radio-md);
+    transition: var(--transicion);
+    outline: none;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--dorado-suave);
+    box-shadow: 0 0 0 3px rgba(199, 152, 83, 0.2);
+    background-color: #FFFDFB;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-error {
+    color: var(--rojo-peligro);
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: none;
+}
+
+.form-error.visible {
+    display: block;
+}
+
+.barra-busqueda {
+    background-color: var(--crema-card);
+    border: 1px solid var(--beige-borde);
+    border-radius: var(--radio-lg);
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--sombra-sm);
+}
+
+.busqueda-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+/* --- 12. TABLAS Y REPORTES ---
+   Estilo de .tabla-biblioteca y su contenedor con scroll (.tabla-responsive). */
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radio-md);
+    border: 1px solid var(--beige-borde);
+    background: #FFFFFF;
+}
+
+.tabla-biblioteca {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    text-align: left;
+}
+
+.tabla-biblioteca th {
+    background-color: var(--marron-oscuro);
+    color: #FFFFFF;
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    padding: 0.85rem 1rem;
+    border-bottom: 2px solid var(--dorado-suave);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.tabla-biblioteca td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--beige-borde);
+    color: #332B25;
+    vertical-align: middle;
+}
+
+.tabla-biblioteca tr:nth-child(even) td {
+    background-color: var(--crema-fondo);
+}
+
+.tabla-biblioteca tr:hover td {
+    background-color: #F8F1E7;
+}
+
+/* --- 13. BADGES E INSIGNIAS DE ESTADO ---
+   Etiquetas de color: disponible (verde), prestado (azul), vencido (rojo). */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.badge-disponible, .badge-activo, .badge-devuelto {
+    background-color: var(--verde-fondo);
+    color: var(--verde-exito);
+    border: 1px solid rgba(45, 106, 79, 0.25);
+}
+
+.badge-prestado {
+    background-color: var(--azul-fondo);
+    color: var(--azul-info);
+    border: 1px solid rgba(29, 53, 87, 0.25);
+}
+
+.badge-mantenimiento {
+    background-color: var(--amarillo-fondo);
+    color: var(--amarillo-alerta);
+    border: 1px solid rgba(176, 125, 20, 0.25);
+}
+
+.badge-vencido, .badge-extraviado, .badge-inactivo {
+    background-color: var(--rojo-fondo);
+    color: var(--rojo-peligro);
+    border: 1px solid rgba(155, 34, 38, 0.25);
+}
+
+/* --- 14. ALERTAS Y MENSAJES FLASH ---
+   Cuadros de aviso: .alerta-success, .alerta-danger, .alerta-warning. */
+.alerta {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radio-md);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--sombra-sm);
+    position: relative;
+}
+
+.alerta-icono {
+    font-size: 1.25rem;
+    margin-top: 2px;
+}
+
+.alerta-contenido {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.alerta-cerrar {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.alerta-cerrar:hover {
+    opacity: 1;
+}
+
+.alerta-success {
+    background-color: var(--verde-fondo);
+    color: var(--verde-exito);
+    border-left: 4px solid var(--verde-exito);
+}
+
+.alerta-danger {
+    background-color: var(--rojo-fondo);
+    color: var(--rojo-peligro);
+    border-left: 4px solid var(--rojo-peligro);
+}
+
+.alerta-warning {
+    background-color: var(--amarillo-fondo);
+    color: var(--amarillo-alerta);
+    border-left: 4px solid var(--amarillo-alerta);
+}
+
+.alerta-info {
+    background-color: var(--azul-fondo);
+    color: var(--azul-info);
+    border-left: 4px solid var(--azul-info);
+}
+
+/* --- 15. MODAL DE CONFIRMACIÓN MODERNO ---
+   Estilos de ventanas emergentes. */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(37, 22, 15, 0.65);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    padding: 15px;
+}
+
+.modal-overlay.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-caja {
+    background: var(--crema-card);
+    width: 100%;
+    max-width: 480px;
+    border-radius: var(--radio-lg);
+    border-top: 5px solid var(--dorado-suave);
+    box-shadow: var(--sombra-lg);
+    padding: 1.75rem;
+    transform: scale(0.9);
+    transition: transform 0.25s ease;
+}
+
+.modal-overlay.activo .modal-caja {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.modal-header i {
+    font-size: 1.6rem;
+    color: var(--dorado-suave);
+}
+
+.modal-cuerpo {
+    font-size: 0.95rem;
+    color: #4A4036;
+    margin-bottom: 1.5rem;
+}
+
+.modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* --- 16. FOOTER DE LA BIBLIOTECA ---
+   Pie de página. */
+.footer-biblioteca {
+    background: linear-gradient(to bottom, #2E1B12, var(--marron-profundo));
+    color: #D3C4B4;
+    padding: 3rem 0 1.5rem 0;
+    border-top: 4px solid var(--dorado-suave);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.footer-col h4 {
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(199, 152, 83, 0.4);
+    padding-bottom: 6px;
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    color: #D3C4B4;
+    transition: var(--transicion);
+}
+
+.footer-links a:hover {
+    color: var(--dorado-suave);
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.82rem;
+    color: #A39485;
+}
+
+/* --- 17. UTILIDADES ---
+   Clases cortas de ayuda: márgenes (.mt-1, .mb-3) y alineación (.text-center). */
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.texto-dorado { color: var(--dorado-suave) !important; }
+.texto-marron { color: var(--marron-cafe) !important; }
+.texto-marron-oscuro { color: var(--marron-oscuro) !important; }
+.texto-secundario { color: #6C5F53 !important; }
+
+.fade-in {
+    animation: fadeInAnimation 0.4s ease forwards;
+}
+
+@keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 18. RESPONSIVE DESIGN ---
+   Ajustes para tablets y celulares (@media): menú móvil, columnas y tamaños. */
+@media (max-width: 992px) {
+    .busqueda-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn-toggle-menu {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--marron-oscuro);
+        padding: 1rem;
+        border-bottom: 3px solid var(--dorado-suave);
+        box-shadow: var(--sombra-lg);
+    }
+
+    .nav-menu.abierto {
+        display: flex;
+    }
+
+    .busqueda-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-titulo {
+        font-size: 1.85rem;
+    }
+
+    .hero-biblioteca {
+        padding: 2rem 1.25rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* --- 19. ESTILOS DE IMPRESIÓN (REPORTES ACADÉMICOS) ---
+   Al imprimir el informe se ocultan menú, botones y pie de página. */
+@media print {
+    body {
+        background: #FFFFFF;
+        color: #000000;
+        font-size: 12pt;
+    }
+
+    .navbar-biblioteca, .footer-biblioteca, .btn, .barra-busqueda, .acciones-columna {
+        display: none !important;
+    }
+
+    .contenedor {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .tarjeta {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    .tabla-biblioteca th {
+        background-color: #F0F0F0 !important;
+        color: #000000 !important;
+        border: 1px solid #CCC !important;
+    }
+
+    .tabla-biblioteca td {
+        border: 1px solid #CCC !important;
+    }
+
+    .print-header {
+        display: block !important;
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+    }
+}
+
+
+/* ===== Mejoras: portada, gráficos, imágenes, detalle, tablas y modo oscuro =====
+   .hero-portada = banner de bienvenida | img.portada = imagen de cada libro
+   .barra-* = gráficos de barras del panel | dialog#dlg = ventana de detalle del libro
+   .buscador-tabla / th.ordenable = filtro y orden de columnas en las tablas
+   [data-tema="oscuro"] = cambia las variables de color para el modo oscuro */
+.hero-portada { text-align: center; padding: 3.5rem 1rem; margin-bottom: 1.5rem; border-radius: 12px; color: #FBF8F2; background: linear-gradient(135deg, var(--marron-oscuro), var(--marron-medio)); }
+.hero-portada h1 { color: var(--dorado-suave); margin-bottom: .75rem; }
+.hero-portada p { max-width: 560px; margin: 0 auto 1.25rem; }
+img.portada { width: 100%; aspect-ratio: 5 / 7; object-fit: cover; display: block; border-radius: 8px 8px 0 0; }
+.barra-fila { display: flex; align-items: center; gap: .75rem; margin: .6rem 0; }
+.barra-etq { flex: 0 0 150px; font-size: .9rem; }
+.barra-fondo { flex: 1; height: 16px; background: var(--beige-suave); border-radius: 8px; overflow: hidden; }
+.barra { height: 100%; background: linear-gradient(90deg, var(--marron-cafe), var(--dorado-suave)); border-radius: 8px; }
+dialog#dlg { width: min(520px, 92%); border: none; border-radius: 12px; padding: 1.25rem; box-shadow: var(--sombra-lg); }
+dialog#dlg::backdrop { background: rgba(0, 0, 0, .55); }
+dialog#dlg img.portada { max-width: 200px; margin: 0 auto 1rem; border-radius: 8px; }
+.buscador-tabla { max-width: 280px; margin-bottom: .5rem; }
+th.ordenable { cursor: pointer; user-select: none; }
+th.ordenable::after { content: ' ↕'; opacity: .4; }
+th[data-o="a"]::after { content: ' ▲'; opacity: 1; }
+th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
+[data-tema="oscuro"] { --crema-fondo: #1b1510; --crema-card: #2a211a; --beige-suave: #3a2e24; --beige-borde: #4b3c2e; --dorado-tenue: #3a2e24; --verde-fondo: #1f3a2b; --rojo-fondo: #3d1f21; --amarillo-fondo: #3d311a; --azul-fondo: #1c2d44; }
+[data-tema="oscuro"] body, [data-tema="oscuro"] p, [data-tema="oscuro"] td, [data-tema="oscuro"] label { color: #EDE3D3; }
+[data-tema="oscuro"] h1, [data-tema="oscuro"] h2, [data-tema="oscuro"] h3, [data-tema="oscuro"] h4, [data-tema="oscuro"] th, [data-tema="oscuro"] .metrica-valor, [data-tema="oscuro"] .libro-titulo { color: #F6EEDF; }
+[data-tema="oscuro"] .form-control { background: #1b1510; color: #EDE3D3; border-color: var(--beige-borde); }
+[data-tema="oscuro"] .alerta, [data-tema="oscuro"] .alerta * { color: #EDE3D3; }
+
+/* ===== Correcciones de contraste =====
+   Ajustes finos para que textos, tablas, botones y etiquetas se lean bien
+   sobre el fondo del banner y en modo oscuro. */
+.hero-portada p { color: #F3ECE0; }
+.hero-portada .btn-outline { color: #FBF8F2; border-color: var(--dorado-suave); }
+.hero-portada .btn-outline:hover { background: rgba(199, 152, 83, .25); }
+[data-tema="oscuro"] .tabla-responsive { background: #2a211a; }
+[data-tema="oscuro"] .tabla-biblioteca td { background: #2a211a; color: #EDE3D3; border-bottom-color: var(--beige-borde); }
+[data-tema="oscuro"] .tabla-biblioteca tr:nth-child(even) td { background: #33281f; }
+[data-tema="oscuro"] .tabla-biblioteca tr:hover td { background: #43342a; }
+[data-tema="oscuro"] .btn-outline { color: #EDE3D3; border-color: var(--dorado-suave); }
+[data-tema="oscuro"] .btn-outline:hover { background: rgba(199, 152, 83, .25); }
+[data-tema="oscuro"] .badge-disponible, [data-tema="oscuro"] .badge-activo, [data-tema="oscuro"] .badge-devuelto { color: #8EDDB0; }
+[data-tema="oscuro"] .badge-prestado { color: #A9CBF5; }
+[data-tema="oscuro"] .badge-mantenimiento { color: #EBC672; }
+[data-tema="oscuro"] .badge-vencido, [data-tema="oscuro"] .badge-extraviado, [data-tema="oscuro"] .badge-inactivo { color: #F5A9AC; }
+[data-tema="oscuro"] .barra-etq, [data-tema="oscuro"] .barra-fila strong { color: #EDE3D3; }
+[data-tema="oscuro"] dialog#dlg { background: #2a211a; color: #EDE3D3; }
+/* Fondo difuminado en la bienvenida */
+.hero-portada {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--marron-oscuro);
+}
+.hero-portada::before {                 /* la imagen difuminada */
+    content: "";
+    position: absolute;
+    inset: -20px;
+    background: url("../img/fondo.jpg") center / cover no-repeat;
+    filter: blur(6px);
+    z-index: -2;
+}
+.hero-portada::after {                  /* capa oscura para que se lea el texto */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(37, 22, 15, 0.55);
+    z-index: -1;
+}
