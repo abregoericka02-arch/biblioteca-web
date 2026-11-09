@@ -222,6 +222,7 @@ const vLogin = () => tarjeta('Iniciar sesión', `
         <button class="btn btn-primario btn-block">Entrar</button>
     </form>
     <p class="mt-2 text-center">¿No tienes cuenta? <a href="#" data-v="registro">Regístrate</a></p>
+    <p class="texto-secundario text-center mt-1">¿Olvidaste tu contraseña? Pide al administrador que la restablezca.</p>
     <p class="texto-secundario text-center mt-1">Demo: admin / admin123 · biblio / biblio123 · lector / lector123</p>`);
 
 // ----- Pantalla: crear cuenta de lector -----
@@ -316,7 +317,7 @@ const vUsuarios = () => tarjeta('Crear usuario', `<form data-form="usuario" nova
     </div><button class="btn btn-primario">Crear usuario</button></form>`)
     + tarjeta('Usuarios del sistema', tabla(['Nombre', 'Usuario', 'Rol', 'Acción'], usuarios.map(u =>
         `<tr><td>${esc(u.nombre)}</td><td>${esc(u.usuario)}</td><td><span class="badge badge-rol">${u.rol}</span></td>
-        <td>${u.id === sesion ? '' : `<button class="btn btn-sm btn-peligro" data-acc="eliminarU" data-id="${u.id}">Eliminar</button>`}</td></tr>`)));
+        <td>${u.id === sesion ? '' : `<button class="btn btn-sm btn-outline" data-acc="restablecer" data-id="${u.id}">Restablecer contraseña</button> <button class="btn btn-sm btn-peligro" data-acc="eliminarU" data-id="${u.id}">Eliminar</button>`}</td></tr>`)));
 
 
 /* ==============================================================================
@@ -571,6 +572,14 @@ document.addEventListener('click', async e => {
     // --- Devolver un libro ---
     if (acc === 'devolver') {
         const err = await enviar('api/prestamos.php', { accion: 'devolver', id });
+        if (err) return aviso(err, 'danger');
+    }
+
+    // --- Restablecer la contraseña de un usuario (solo admin): se escribe una temporal ---
+    if (acc === 'restablecer') {
+        const nueva = prompt('Escribe una contraseña temporal para ' + getU(id).nombre + ' (mínimo 6 caracteres):');
+        if (nueva === null) return; // Canceló
+        const err = await enviar('api/usuarios.php', { accion: 'restablecer', id, pass: nueva });
         if (err) return aviso(err, 'danger');
     }
 

@@ -68,3 +68,11 @@ autores, editorial y páginas, teléfono y dirección de usuarios, tabla de
 notificaciones, la API `buscar_libros.php`, el reporte aparte y la carpeta `docs/`.
 Las notificaciones y los informes de la carpeta 1 se mantienen tal cual
 (se calculan a partir de los préstamos).
+
+## ¿Olvidé mi contraseña?
+
+- **Lector o bibliotecario:** el administrador entra a **Usuarios**, pulsa
+  **Restablecer contraseña** junto a su nombre y escribe una contraseña temporal.
+  La persona entra con esa clave y la cambia en **Mi perfil**.
+- **Administrador:** abre la terminal de XAMPP (botón *Shell*) dentro de la carpeta
+  del proyecto y escribe: `php database/restablecer_admin.php NuevaClave123`
