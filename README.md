@@ -71,8 +71,19 @@ Las notificaciones y los informes de la carpeta 1 se mantienen tal cual
 
 ## ¿Olvidé mi contraseña?
 
-- **Lector o bibliotecario:** el administrador entra a **Usuarios**, pulsa
-  **Restablecer contraseña** junto a su nombre y escribe una contraseña temporal.
-  La persona entra con esa clave y la cambia en **Mi perfil**.
+- **Lector o bibliotecario:** en el login pulsa **¿Olvidaste tu contraseña?** y escribe su
+  correo o usuario. El administrador ve la solicitud en **Usuarios > Solicitudes de contraseña**,
+  pulsa **Restablecer**, escribe una contraseña temporal y se la entrega a la persona
+  (en persona, WhatsApp, etc.). La persona entra con esa clave y la cambia en **Mi perfil**.
+  El administrador también puede **Descartar** una solicitud.
 - **Administrador:** abre la terminal de XAMPP (botón *Shell*) dentro de la carpeta
   del proyecto y escribe: `php database/restablecer_admin.php NuevaClave123`
+
+## Actualizar una instalación que ya funciona (sin perder datos)
+
+Después de hacer `git pull`, si el cambio incluye un archivo `database/migracion_*.sql`:
+phpMyAdmin > pestaña **SQL** > pegar el contenido del archivo > **Continuar**.
+Solo agrega tablas nuevas, no borra nada. **Nunca** vuelvas a ejecutar `instalar.php`
+ni a importar `biblioteca.sql` en una base con datos: eso la reinicia.
+
+- Migración de las solicitudes de contraseña: `database/migracion_solicitudes.sql`

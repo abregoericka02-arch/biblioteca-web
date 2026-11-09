@@ -21,6 +21,7 @@ USE `biblioteca_db`;
 
 -- 2. Borrar tablas anteriores (se apagan las claves foráneas un momento para poder hacerlo)
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `solicitudes_clave`;
 DROP TABLE IF EXISTS `reservas`;
 DROP TABLE IF EXISTS `prestamos`;
 DROP TABLE IF EXISTS `libros`;
@@ -107,6 +108,17 @@ CREATE TABLE `reservas` (
     CONSTRAINT `fk_reservas_libros` FOREIGN KEY (`libro_id`)
         REFERENCES `libros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_reservas_lectores` FOREIGN KEY (`lector_id`)
+        REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- SOLICITUDES_CLAVE: lectores/bibliotecarios que olvidaron su contraseña.
+--   atendida = 0 -> pendiente (el administrador la ve en "Usuarios"); 1 -> ya atendida o descartada.
+CREATE TABLE `solicitudes_clave` (
+    `id`         INT AUTO_INCREMENT PRIMARY KEY,
+    `usuario_id` INT NOT NULL,
+    `fecha`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `atendida`   TINYINT(1) NOT NULL DEFAULT 0,
+    CONSTRAINT `fk_solicitudes_usuarios` FOREIGN KEY (`usuario_id`)
         REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

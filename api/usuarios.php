@@ -9,6 +9,7 @@
  *      crear    -> crea un usuario con rol bibliotecario o lector
  *      eliminar -> elimina un usuario (no a sí mismo ni si tiene préstamos activos)
  *      restablecer -> asigna una contraseña temporal a un usuario que olvidó la suya
+ *      descartar   -> descarta una solicitud de contraseña sin cambiar nada
  */
 
 require_once __DIR__ . '/../includes/auth.php';
@@ -60,7 +61,24 @@ switch (texto($d['accion'] ?? '')) {
 
         $q = $pdo->prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?');
         $q->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
+
+        // Si el usuario había enviado una solicitud, queda marcada como atendida
+        try {
+            $q = $pdo->prepare('UPDATE solicitudes_clave SET atendida = 1 WHERE usuario_id = ?');
+            $q->execute([$id]);
+        } catch (PDOException $e) { /* La tabla aún no existe: no pasa nada */ }
+
         ok('Contraseña de ' . $nombre . ' restablecida. Entrégale la contraseña temporal y pídele que la cambie en "Mi perfil".');
+
+    // ------------------------------------------------------------ DESCARTAR
+    case 'descartar':
+        try {
+            $q = $pdo->prepare('UPDATE solicitudes_clave SET atendida = 1 WHERE id = ?');
+            $q->execute([(int)($d['id'] ?? 0)]);
+        } catch (PDOException $e) {
+            fallo('No se pudo descartar la solicitud.', 500);
+        }
+        ok('Solicitud descartada.');
 
     default:
         fallo('Acción no válida.');

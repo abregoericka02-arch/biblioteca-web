@@ -106,6 +106,20 @@ if ($u) {
     }
 }
 
+// ---------- 5b. Solicitudes de contraseña pendientes (solo las ve el administrador) ----------
+$solicitudes = [];
+if ($u && $u['rol'] === 'admin') {
+    try {
+        $filas = $pdo->query('SELECT s.id, s.usuario_id, s.fecha, us.nombre, us.email
+                                FROM solicitudes_clave s JOIN usuarios us ON us.id = s.usuario_id
+                               WHERE s.atendida = 0 ORDER BY s.fecha')->fetchAll();
+        foreach ($filas as $f) {
+            $solicitudes[] = ['id' => (int)$f['id'], 'usuarioId' => (int)$f['usuario_id'],
+                              'nombre' => $f['nombre'], 'email' => $f['email'], 'fecha' => $f['fecha']];
+        }
+    } catch (PDOException $e) { /* La tabla aún no existe: se muestra la lista vacía */ }
+}
+
 // ---------- 6. Respuesta final ----------
 responder([
     'ok'         => true,
@@ -115,4 +129,5 @@ responder([
     'usuarios'   => $usuarios,
     'prestamos'  => $prestamos,
     'reservas'   => $reservas,
+    'solicitudes' => $solicitudes,
 ]);

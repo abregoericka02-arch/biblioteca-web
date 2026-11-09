@@ -9,6 +9,7 @@
  *      logout    -> cierra la sesión
  *      registro  -> crea una cuenta de lector
  *      perfil    -> cambia nombre, correo y (opcional) contraseña del usuario actual
+ *      olvide    -> el usuario olvidó su contraseña: deja una solicitud para el administrador
  *  - Las contraseñas se comparan con password_verify() contra el hash guardado.
  */
 
@@ -81,6 +82,37 @@ switch (texto($d['accion'] ?? '')) {
         $q = $pdo->prepare('UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?');
         $q->execute([$nombre, $email, $u['id']]);
         ok('Perfil actualizado.');
+
+    // ---------------------------------------------------------------- OLVIDÉ
+    // No requiere sesión. Guarda una solicitud que el administrador verá en "Usuarios".
+    // La respuesta es SIEMPRE la misma exista o no la cuenta (así nadie puede usar
+    // este formulario para averiguar qué correos están registrados).
+    case 'olvide':
+        $dato = mb_strtolower(texto($d['usuario'] ?? ''));
+        if ($dato === '') fallo('Escribe tu correo o tu nombre de usuario.');
+
+        try {
+            $q = $pdo->prepare("SELECT u.id, r.nombre AS rol FROM usuarios u JOIN roles r ON r.id = u.rol_id
+                                 WHERE u.usuario = ? OR u.email = ? LIMIT 1");
+            $q->execute([$dato, $dato]);
+            $f = $q->fetch();
+
+            // Los administradores no generan solicitud (nadie podría atenderla: ellos usan restablecer_admin.php)
+            if ($f && $f['rol'] !== 'admin') {
+                // Si ya tiene una solicitud pendiente no se duplica
+                $q = $pdo->prepare('SELECT COUNT(*) FROM solicitudes_clave WHERE usuario_id = ? AND atendida = 0');
+                $q->execute([(int)$f['id']]);
+                if ($q->fetchColumn() == 0) {
+                    $q = $pdo->prepare('INSERT INTO solicitudes_clave (usuario_id) VALUES (?)');
+                    $q->execute([(int)$f['id']]);
+                }
+            }
+        } catch (PDOException $e) {
+            // Normalmente: falta crear la tabla solicitudes_clave (ver database/migracion_solicitudes.sql)
+            error_log('Solicitud de contraseña: ' . $e->getMessage());
+            fallo('Esta función aún no está activada. Avisa al administrador.', 500);
+        }
+        ok('Si la cuenta existe, el administrador recibió tu solicitud. Pasa por la biblioteca o espera a que te contacten.');
 
     default:
         fallo('Acción no válida.');

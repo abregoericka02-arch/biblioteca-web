@@ -57,6 +57,7 @@ const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } 
    Estas variables se llenan con lo que responde api/datos.php (función cargar)
    ============================================================================== */
 let libros = [], usuarios = [], prestamos = [], reservas = []; // Datos que vienen de MySQL
+let solicitudes = [];             // Solicitudes de contraseña pendientes (solo las recibe el admin)
 let CATS = [];                    // Nombres de categorías (tabla "categorias")
 let sesion = null;                // id del usuario con sesión iniciada (null = visitante)
 let vista = 'portada';            // Pantalla que se está mostrando
@@ -99,6 +100,7 @@ async function cargar() {
     const r = await api('api/datos.php');
     if (!r.ok) { aviso(r.error || 'No se pudieron cargar los datos.', 'danger'); return false; }
     ({ categorias: CATS, libros, usuarios, prestamos, reservas } = r);
+    solicitudes = r.solicitudes || [];
     sesion = r.sesion;
     return true;
 }
@@ -222,8 +224,17 @@ const vLogin = () => tarjeta('Iniciar sesión', `
         <button class="btn btn-primario btn-block">Entrar</button>
     </form>
     <p class="mt-2 text-center">¿No tienes cuenta? <a href="#" data-v="registro">Regístrate</a></p>
-    <p class="texto-secundario text-center mt-1">¿Olvidaste tu contraseña? Pide al administrador que la restablezca.</p>
+    <p class="mt-1 text-center"><a href="#" data-v="olvide">¿Olvidaste tu contraseña?</a></p>
     <p class="texto-secundario text-center mt-1">Demo: admin / admin123 · biblio / biblio123 · lector / lector123</p>`);
+
+// ----- Pantalla: olvidé mi contraseña (deja una solicitud para el administrador) -----
+const vOlvide = () => tarjeta('¿Olvidaste tu contraseña?', `
+    <p class="texto-secundario mb-2">Escribe tu correo o tu usuario. El administrador recibirá tu solicitud y te dará una contraseña temporal.</p>
+    <form data-form="olvide" novalidate>
+        ${campo('usuario', 'Usuario o correo electrónico')}
+        <button class="btn btn-primario btn-block">Enviar solicitud</button>
+    </form>
+    <p class="mt-2 text-center"><a href="#" data-v="login">Volver a iniciar sesión</a></p>`);
 
 // ----- Pantalla: crear cuenta de lector -----
 const vRegistro = () => tarjeta('Crear cuenta de lector', `
@@ -311,7 +322,11 @@ const vMisBase = () => {
 };
 
 // ----- Pantalla: usuarios del sistema (solo admin): formulario + tabla -----
-const vUsuarios = () => tarjeta('Crear usuario', `<form data-form="usuario" novalidate><div class="busqueda-grid">
+const vUsuarios = () => tarjeta('Solicitudes de contraseña (' + solicitudes.length + ')', tabla(['Nombre', 'Correo', 'Fecha', 'Acción'], solicitudes.map(s =>
+        `<tr><td>${esc(s.nombre)}</td><td>${esc(s.email)}</td><td>${esc(String(s.fecha).slice(0, 16))}</td>
+        <td><button class="btn btn-sm btn-exito" data-acc="restablecer" data-id="${s.usuarioId}">Restablecer</button>
+        <button class="btn btn-sm btn-outline" data-acc="descartar" data-id="${s.id}">Descartar</button></td></tr>`)))
+    + tarjeta('Crear usuario', `<form data-form="usuario" novalidate><div class="busqueda-grid">
     ${campo('nombre', 'Nombre completo')}${campo('usuario', 'Nombre de usuario')}${campo('email', 'Correo electrónico', '', 'email')}${campo('pass', 'Contraseña', '', 'password')}
     ${select('rol', 'Rol', '<option value="bibliotecario">Bibliotecario</option><option value="lector">Lector</option>')}
     </div><button class="btn btn-primario">Crear usuario</button></form>`)
@@ -420,8 +435,8 @@ function render() {
     const u = usuario();
 
     // --- Control de acceso en pantalla (el servidor también lo valida) ---
-    if (!u && !['portada', 'login', 'registro'].includes(vista)) vista = 'portada'; // Visitante: solo pantallas públicas
-    if (u && ['portada', 'login', 'registro'].includes(vista)) vista = inicio(u);   // Con sesión: salta las públicas
+    if (!u && !['portada', 'login', 'registro', 'olvide'].includes(vista)) vista = 'portada'; // Visitante: solo pantallas públicas
+    if (u && ['portada', 'login', 'registro', 'olvide'].includes(vista)) vista = inicio(u);   // Con sesión: salta las públicas
     if (u && u.rol === 'lector' && STAFF_V.includes(vista)) vista = 'catalogo';     // Lector no entra al panel del personal
     if (u && u.rol === 'bibliotecario' && vista === 'usuarios') vista = 'panel';    // Solo el admin gestiona usuarios
 
@@ -435,7 +450,7 @@ function render() {
     $('#nav').classList.remove('abierto'); // Cierra el menú en móvil
 
     // --- Pantalla: busca la función de la vista actual y pega su HTML en <main> ---
-    const vistas = { login: vLogin, registro: vRegistro, panel: vPanel, catalogo: vCatalogo, libros: vLibros, lectores: vLectores, prestamos: vPrestamos, mis: vMis, usuarios: vUsuarios, portada: vPortada, perfil: vPerfil };
+    const vistas = { olvide: vOlvide, login: vLogin, registro: vRegistro, panel: vPanel, catalogo: vCatalogo, libros: vLibros, lectores: vLectores, prestamos: vPrestamos, mis: vMis, usuarios: vUsuarios, portada: vPortada, perfil: vPerfil };
     $('#app').innerHTML = vistas[vista]();
     mejorarTablas();
 }
@@ -452,6 +467,13 @@ const forms = {
         const err = await enviar('api/sesion.php', { accion: 'login', usuario: d.usuario, pass: d.pass });
         if (err) return err;
         vista = inicio(usuario()); $('#aviso').innerHTML = ''; // Va a la pantalla inicial de su rol
+    },
+
+    // Pedir al administrador que restablezca la contraseña (acción "olvide"); al terminar vuelve al login
+    async olvide(d) {
+        const err = await enviar('api/sesion.php', { accion: 'olvide', usuario: d.usuario });
+        if (!err) vista = 'login';
+        return err;
     },
 
     // Registrar una cuenta de lector (acción "registro"); al terminar muestra el login
@@ -580,6 +602,12 @@ document.addEventListener('click', async e => {
         const nueva = prompt('Escribe una contraseña temporal para ' + getU(id).nombre + ' (mínimo 6 caracteres):');
         if (nueva === null) return; // Canceló
         const err = await enviar('api/usuarios.php', { accion: 'restablecer', id, pass: nueva });
+        if (err) return aviso(err, 'danger');
+    }
+
+    // --- Descartar una solicitud de contraseña (solo admin) ---
+    if (acc === 'descartar') {
+        const err = await enviar('api/usuarios.php', { accion: 'descartar', id });
         if (err) return aviso(err, 'danger');
     }
 
