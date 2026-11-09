@@ -137,13 +137,13 @@ INSERT INTO `usuarios` (`id`, `rol_id`, `nombre`, `usuario`, `email`, `password_
 INSERT INTO `categorias` (`id`, `nombre`) VALUES
 (1, 'Literatura'), (2, 'Tecnología'), (3, 'Ciencia'), (4, 'Infantil'), (5, 'Historia'), (6, 'Otros');
 
-INSERT INTO `libros` (`id`, `categoria_id`, `titulo`, `autor`, `isbn`, `anio`, `copias`) VALUES
-(1, 1, 'Cien años de soledad',        'Gabriel García Márquez',    'LIB-001', 1967, 3),
-(2, 1, 'Don Quijote de la Mancha',    'Miguel de Cervantes',       'LIB-002', 1605, 2),
-(3, 2, 'Fundamentos de Programación', 'Luis Joyanes',              'LIB-003', 2008, 2),
-(4, 2, 'Clean Code',                  'Robert C. Martin',          'LIB-004', 2008, 2),
-(5, 3, 'Breve historia del tiempo',   'Stephen Hawking',           'LIB-005', 1988, 2),
-(6, 4, 'El principito',               'Antoine de Saint-Exupéry',  'LIB-006', 1943, 3);
+INSERT INTO `libros` (`id`, `categoria_id`, `titulo`, `autor`, `isbn`, `anio`, `copias`, `descripcion`) VALUES
+(1, 1, 'Cien años de soledad',        'Gabriel García Márquez',    'LIB-001', 1967, 3, 'Novela del realismo mágico que narra la historia de la familia Buendía a lo largo de siete generaciones en el pueblo ficticio de Macondo.'),
+(2, 1, 'Don Quijote de la Mancha',    'Miguel de Cervantes',       'LIB-002', 1605, 2, 'Un hidalgo que enloquece de tanto leer libros de caballerías decide hacerse caballero andante y sale al camino con su escudero Sancho Panza. Es una de las obras cumbre de la literatura en español.'),
+(3, 2, 'Fundamentos de Programación', 'Luis Joyanes',              'LIB-003', 2008, 2, 'Libro de texto que introduce los conceptos básicos de la programación: algoritmos, estructuras de datos y diseño de programas.'),
+(4, 2, 'Clean Code',                  'Robert C. Martin',          'LIB-004', 2008, 2, 'Guía de buenas prácticas para escribir código legible, ordenado y fácil de mantener, con ejemplos de refactorización.'),
+(5, 3, 'Breve historia del tiempo',   'Stephen Hawking',           'LIB-005', 1988, 2, 'Obra de divulgación científica sobre el origen y la estructura del universo, los agujeros negros y la naturaleza del tiempo, escrita para lectores sin formación en física.'),
+(6, 4, 'El principito',               'Antoine de Saint-Exupéry',  'LIB-006', 1943, 3, 'Cuento sobre un pequeño príncipe que viaja por distintos planetas y reflexiona sobre la amistad, el amor y la forma en que los adultos ven el mundo.');
 
 -- Un préstamo de ejemplo YA VENCIDO (para ver multas y avisos): prestado hace 10 días, límite hace 3 días
 INSERT INTO `prestamos` (`libro_id`, `lector_id`, `fecha_prestamo`, `fecha_limite`, `fecha_devolucion`) VALUES

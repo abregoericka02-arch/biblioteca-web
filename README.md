@@ -87,3 +87,4 @@ Solo agrega tablas nuevas, no borra nada. **Nunca** vuelvas a ejecutar `instalar
 ni a importar `biblioteca.sql` en una base con datos: eso la reinicia.
 
 - Migración de las solicitudes de contraseña: `database/migracion_solicitudes.sql`
+- Descripciones de los libros de ejemplo: `database/migracion_descripciones.sql`
