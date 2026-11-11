@@ -313,6 +313,13 @@ const vPrestamos = () => tarjeta('Nuevo préstamo', `<form data-form="prestamo" 
             <td>${p.devuelto ? '' : `<button class="btn btn-sm btn-exito" data-acc="devolver" data-id="${p.id}">Devolver</button>`}</td></tr>`;
     })));
 
+// ----- Recuadro con las reglas de préstamo y la multa por atraso (se muestra al lector) -----
+const tarjetaReglas = () => tarjeta('Reglas de préstamo', `
+    <p>• Cada préstamo dura <strong>7 días</strong> y se puede renovar <strong>una vez</strong>, por 7 días más (si nadie reservó el libro y no está vencido).</p>
+    <p>• Puedes tener como máximo <strong>3 libros</strong> prestados a la vez.</p>
+    <p>• Si te pasas de la fecha límite, se cobra una multa de <strong>${dinero(MULTA_DIA)} por cada día de atraso</strong>.</p>
+    <p>• Las devoluciones se entregan en la biblioteca, donde el personal las registra.</p>`);
+
 // ----- Pantalla del lector (parte 1): notificaciones + historial de sus préstamos -----
 const vMisBase = () => {
     // Avisos: préstamos propios que vencen en 2 días o menos (o que ya vencieron)
@@ -322,6 +329,7 @@ const vMisBase = () => {
             : `<div class="alerta alerta-warning"><div class="alerta-contenido">«${t}» vence ${d === 0 ? 'hoy' : 'en ' + d + ' día(s)'}.</div></div>`;
     });
     return tarjeta('Notificaciones', avisos.join('') || '<p>No tienes avisos pendientes.</p>')
+        + tarjetaReglas()
         + tarjeta('Mis préstamos e historial', tabla(['Libro', 'Fecha', 'Límite', 'Estado', 'Acción'], [...mios].reverse().map(p => {
             const e = estado(p);
             return `<tr><td>${esc(getL(p.libroId).titulo)}</td><td>${p.fecha}</td><td>${p.limite}</td><td><span class="badge ${e[1]}">${e[0]}</span></td><td>${p.devuelto ? '' : botonRenovar(p) || '<span class="texto-secundario">Entrégalo en la biblioteca</span>'}</td></tr>`;
@@ -391,7 +399,7 @@ const vPortada = () => `<section class="hero-portada"><h1>Bienvenido al Sistema 
     <p>Consulta el catálogo, reserva y pide prestados tus libros desde cualquier lugar.</p>
     <a href="#" class="btn btn-dorado" data-v="login">Ingresar</a> <a href="#" class="btn btn-outline" data-v="registro">Crear cuenta</a></section>`
     + tarjeta('Libros destacados', `<div class="grid-libros">${libros.slice(0, 4).map(l => `<article class="tarjeta-libro">${img(l)}<div class="libro-cuerpo"><h3 class="libro-titulo">${esc(l.titulo)}</h3><p class="libro-autor">${esc(l.autor)}</p></div></article>`).join('')}</div>`)
-    + tarjeta('Horarios y contacto', '<p>Lunes a viernes: 8:00 a. m. – 5:00 p. m. · Sábados: 9:00 a. m. – 1:00 p. m.</p><p>Universidad de Panamá, CRUBO · Bocas del Toro, Panamá</p>');
+    + tarjeta('Horarios y contacto', '<p>Lunes a viernes: 8:00 a. m. – 5:00 p. m. · Sábados: 9:00 a. m. – 1:00 p. m.</p><p>Préstamos de 7 días · Multa por atraso: ' + dinero(MULTA_DIA) + ' por día.</p><p>Universidad de Panamá, CRUBO · Bocas del Toro, Panamá</p>');
 
 
 /* ==============================================================================
