@@ -269,6 +269,13 @@ const vPanelBase = () => {
         ${metrica('Prestados', act.length)}${metrica('Vencidos', venc.length)}${metrica('Lectores', usuarios.filter(u => u.rol === 'lector').length)}</div>`
         + tarjeta('Informe: préstamos vencidos', tabla(['Libro', 'Lector', 'Vencía', 'Atraso', 'Multa'],
             venc.map(p => `<tr><td>${esc(getL(p.libroId).titulo)}</td><td>${esc(getU(p.lectorId).nombre)}</td><td>${p.limite}</td><td>${-dias(p.limite)} días</td><td>${dinero(multa(p))}</td></tr>`)))
+        // Informe de reservas: quién espera cada libro (de la más antigua a la más reciente)
+        + tarjeta('Informe: reservas en espera', tabla(['Libro', 'Lector', 'Reservado el', 'Estado', 'Acción'], reservas.map(x => {
+            const l = getL(x.libroId), ya = l.id && disp(l) > 0; // ya = el libro ya tiene ejemplar libre
+            return `<tr><td>${esc(l.titulo)}</td><td>${esc(getU(x.lectorId).nombre)}</td><td>${esc(String(x.fecha).slice(0, 16))}</td>
+                <td><span class="badge ${ya ? 'badge-disponible' : 'badge-prestado'}">${ya ? 'Ya disponible' : 'En espera'}</span></td>
+                <td><button class="btn btn-sm btn-outline" data-acc="cancelarR" data-id="${x.id}">Cancelar</button></td></tr>`;
+        })))
         + tarjeta('Informe: existencias por libro', tabla(['Libro', 'Ejemplares', 'Prestados', 'Disponibles'],
             libros.map(l => `<tr><td>${esc(l.titulo)}</td><td>${l.copias}</td><td>${l.prestados}</td><td>${disp(l)}</td></tr>`))
             + '<button class="btn btn-dorado mt-2" data-acc="imprimir">Imprimir informe</button> <button class="btn btn-outline mt-2" data-acc="csv">Exportar a CSV</button>');

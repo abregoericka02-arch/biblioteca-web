@@ -93,7 +93,7 @@ if ($u) {
 // ---------- 5. Reservas (el personal ve todas; el lector solo las suyas) ----------
 $reservas = [];
 if ($u) {
-    $sql = 'SELECT id, libro_id, lector_id FROM reservas';
+    $sql = 'SELECT id, libro_id, lector_id, fecha FROM reservas';
     if ($staff) {
         $filas = $pdo->query($sql . ' ORDER BY id')->fetchAll();
     } else {
@@ -102,7 +102,8 @@ if ($u) {
         $filas = $q->fetchAll();
     }
     foreach ($filas as $f) {
-        $reservas[] = ['id' => (int)$f['id'], 'libroId' => (int)$f['libro_id'], 'lectorId' => (int)$f['lector_id']];
+        $reservas[] = ['id' => (int)$f['id'], 'libroId' => (int)$f['libro_id'], 'lectorId' => (int)$f['lector_id'],
+                       'fecha' => $f['fecha']]; // Fecha y hora en que se hizo la reserva
     }
 }
 
