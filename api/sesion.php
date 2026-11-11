@@ -55,7 +55,7 @@ switch (texto($d['accion'] ?? '')) {
 
     // --------------------------------------------------------------- PERFIL
     case 'perfil':
-        $u      = requerir_login();
+        $u      = requerir_login(true); // true: también puede entrar quien tiene contraseña temporal
         $nombre = texto($d['nombre'] ?? '');
         $email  = mb_strtolower(texto($d['email'] ?? ''));
         $actual = (string)($d['actual'] ?? '');
@@ -70,12 +70,17 @@ switch (texto($d['accion'] ?? '')) {
         $q->execute([$email, $u['id']]);
         if ($q->fetchColumn() > 0) fallo('Ese correo ya está en uso.');
 
+        // Con contraseña temporal es OBLIGATORIO elegir una nueva y distinta a la temporal
+        if ($u['debe_cambiar_clave'] && $nueva === '') fallo('Debes escribir una nueva contraseña para continuar.');
+        if ($u['debe_cambiar_clave'] && $nueva === $actual) fallo('La nueva contraseña debe ser distinta de la temporal.');
+
         if ($nueva !== '') { // Solo se cambia la contraseña si escribió una nueva
             $q = $pdo->prepare('SELECT password_hash FROM usuarios WHERE id = ?');
             $q->execute([$u['id']]);
             if (!password_verify($actual, (string)$q->fetchColumn())) fallo('La contraseña actual no es correcta.');
             if (mb_strlen($nueva) < 6) fallo('La nueva contraseña debe tener al menos 6 caracteres.');
-            $q = $pdo->prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?');
+            // Se guarda la nueva clave y se quita la marca de "contraseña temporal"
+            $q = $pdo->prepare('UPDATE usuarios SET password_hash = ?, debe_cambiar_clave = 0 WHERE id = ?');
             $q->execute([password_hash($nueva, PASSWORD_DEFAULT), $u['id']]);
         }
 

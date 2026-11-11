@@ -16,6 +16,8 @@ require_once __DIR__ . '/../config/database.php';
 const MAX_PRESTAMOS_ACTIVOS = 3; // Máximo de préstamos activos por lector
 const DIAS_PRESTAMO_LECTOR  = 7; // Días de préstamo cuando el propio lector pide un libro
 const DIAS_RENOVACION       = 7; // Días que se suman al renovar
+const MULTA_DIA             = 0.25; // Balboas que se cobran por cada día de atraso
+const DIAS_RESERVA          = 3; // Días que se le aparta un ejemplar al lector que reservó
 
 /** Fecha de hoy en formato AAAA-MM-DD (el formato que usa MySQL para DATE). */
 function hoy(): string {
@@ -25,6 +27,55 @@ function hoy(): string {
 /** Suma (o resta) días a una fecha AAAA-MM-DD y devuelve la nueva fecha. */
 function suma_dias(string $fecha, int $dias): string {
     return date('Y-m-d', strtotime($fecha . ' ' . ($dias >= 0 ? '+' : '') . $dias . ' days'));
+}
+
+/**
+ * Deuda pendiente de un lector en balboas: multas de préstamos devueltos sin cobrar
+ * + lo que lleva acumulado en préstamos vencidos que aún tiene. 0 = no debe nada.
+ */
+function deuda_lector(PDO $pdo, int $lectorId): float {
+    $q = $pdo->prepare('SELECT COALESCE(SUM(GREATEST(DATEDIFF(COALESCE(fecha_devolucion, ?), fecha_limite), 0)), 0)
+                          FROM prestamos WHERE lector_id = ? AND multa_pagada = 0');
+    $q->execute([hoy(), $lectorId]);
+    return (float)$q->fetchColumn() * MULTA_DIA;
+}
+
+/**
+ * Administra las reservas (se llama al cargar datos y después de devoluciones):
+ *  1. Borra los apartados que llevan más de DIAS_RESERVA días sin recogerse.
+ *  2. Si hay ejemplares libres, aparta uno para cada lector en espera, respetando
+ *     el orden de reserva (la reserva más antigua va primero).
+ * Si se indica $libroId solo revisa ese libro; si no, todos los que tienen reservas.
+ */
+function procesar_reservas(PDO $pdo, ?int $libroId = null): void {
+    $limite = date('Y-m-d H:i:s', strtotime('-' . DIAS_RESERVA . ' days'));
+    $q = $pdo->prepare('DELETE FROM reservas WHERE fecha_aviso IS NOT NULL AND fecha_aviso < ?');
+    $q->execute([$limite]);
+
+    if ($libroId !== null) {
+        $ids = [$libroId];
+    } else {
+        $ids = $pdo->query('SELECT DISTINCT libro_id FROM reservas WHERE fecha_aviso IS NULL')->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    foreach ($ids as $id) {
+        // Ejemplares realmente libres = copias - prestados - ya apartados
+        $q = $pdo->prepare('SELECT l.copias
+                                 - (SELECT COUNT(*) FROM prestamos p WHERE p.libro_id = l.id AND p.fecha_devolucion IS NULL)
+                                 - (SELECT COUNT(*) FROM reservas r WHERE r.libro_id = l.id AND r.fecha_aviso IS NOT NULL)
+                              FROM libros l WHERE l.id = ?');
+        $q->execute([(int)$id]);
+        $libres = (int)$q->fetchColumn();
+
+        if ($libres > 0) {
+            $q = $pdo->prepare('SELECT id FROM reservas WHERE libro_id = ? AND fecha_aviso IS NULL ORDER BY id LIMIT ' . $libres);
+            $q->execute([(int)$id]);
+            foreach ($q->fetchAll(PDO::FETCH_COLUMN) as $reservaId) {
+                $u = $pdo->prepare('UPDATE reservas SET fecha_aviso = ? WHERE id = ?');
+                $u->execute([date('Y-m-d H:i:s'), (int)$reservaId]);
+            }
+        }
+    }
 }
 
 /** Envía una respuesta JSON y termina el script. $codigo es el código HTTP (200 = bien). */

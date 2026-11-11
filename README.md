@@ -81,10 +81,31 @@ Las notificaciones y los informes de la carpeta 1 se mantienen tal cual
 
 ## Actualizar una instalación que ya funciona (sin perder datos)
 
-Después de hacer `git pull`, si el cambio incluye un archivo `database/migracion_*.sql`:
-phpMyAdmin > pestaña **SQL** > pegar el contenido del archivo > **Continuar**.
-Solo agrega tablas nuevas, no borra nada. **Nunca** vuelvas a ejecutar `instalar.php`
-ni a importar `biblioteca.sql` en una base con datos: eso la reinicia.
+La base de datos **se actualiza sola**: después de hacer `git pull` (o de copiar los archivos
+nuevos), basta con abrir la página. Si el proyecto necesita una tabla o columna nueva,
+`includes/migraciones.php` la agrega la primera vez y guarda en la tabla `esquema_version`
+hasta dónde llegó. Las migraciones **nunca borran datos**.
 
-- Migración de las solicitudes de contraseña: `database/migracion_solicitudes.sql`
-- Descripciones de los libros de ejemplo: `database/migracion_descripciones.sql`
+**Nunca** vuelvas a ejecutar `instalar.php` ni a importar `biblioteca.sql` en una base con datos:
+eso la reinicia desde cero. (Los archivos `database/migracion_*.sql` de entregas anteriores
+ya no hacen falta: se pueden borrar.)
+
+## Reglas del sistema
+
+- Préstamo de 7 días, una renovación de 7 días; máximo 3 libros por lector.
+- Multa de B/. 0.25 por día de atraso. Se cobra en la biblioteca: el personal pulsa **Cobrar**
+  en Préstamos (después de devolver el libro). Con multas pendientes o un préstamo vencido
+  el lector no puede pedir ni renovar libros.
+- Solo el personal registra devoluciones.
+- Reservas: si un libro no tiene ejemplares, el lector puede reservarlo. Cuando vuelve un
+  ejemplar se aparta 3 días para el primero de la lista; si no lo recoge, pasa al siguiente.
+- Cuando el administrador restablece una contraseña, es temporal: la persona debe cambiarla
+  en el primer inicio de sesión.
+
+## Usuarios de prueba (cámbialos en "Mi perfil" antes de presentar el proyecto)
+
+| Rol           | Usuario | Contraseña |
+|---------------|---------|------------|
+| Administrador | admin   | admin123   |
+| Bibliotecario | biblio  | biblio123  |
+| Lector        | lector  | lector123  |

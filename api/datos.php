@@ -12,13 +12,15 @@
  *  - Los nombres de los campos son los mismos que usaba la versión con localStorage
  *    (libroId, lectorId, fecha, limite, devuelto...), así el resto de app.js no cambia.
  *  - Nunca se envía la contraseña (ni su hash) al navegador.
+ *  - Antes de responder se actualizan las reservas (apartados vencidos y nuevos apartados).
  */
 
 require_once __DIR__ . '/../includes/auth.php';
 
 $pdo = getDBConnection();
+procesar_reservas($pdo);        // Libera apartados vencidos y aparta ejemplares a quien espera
 $u   = usuario_actual();        // null si es visitante
-$staff = es_staff($u);
+$staff = es_staff($u);          // false también si tiene contraseña temporal (debe cambiarla primero)
 
 // ---------- 1. Categorías (lista fija que llena los <select> y los gráficos) ----------
 $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
@@ -27,7 +29,9 @@ $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY id')->fetchAll
 $sqlLibros = 'SELECT l.id, l.titulo, l.autor, c.nombre AS categoria, l.isbn, l.anio, l.copias,
                      l.descripcion, l.portada_url,
                      (SELECT COUNT(*) FROM prestamos p
-                       WHERE p.libro_id = l.id AND p.fecha_devolucion IS NULL) AS prestados
+                       WHERE p.libro_id = l.id AND p.fecha_devolucion IS NULL) AS prestados,
+                     (SELECT COUNT(*) FROM reservas r
+                       WHERE r.libro_id = l.id AND r.fecha_aviso IS NOT NULL) AS apartados
                 FROM libros l
                 JOIN categorias c ON c.id = l.categoria_id
                ORDER BY l.id';
@@ -50,26 +54,28 @@ foreach ($pdo->query($sqlLibros) as $f) {
         'descripcion' => $f['descripcion'] ?? '',
         'portada'     => $portada,
         'prestados'   => (int)$f['prestados'],
+        'apartados'   => (int)$f['apartados'], // Ejemplares guardados para lectores que reservaron
     ];
 }
 
 // ---------- 3. Usuarios (el personal ve todos; el lector solo se ve a sí mismo) ----------
 $usuarios = [];
 if ($staff) {
-    $filas = $pdo->query('SELECT u.id, u.nombre, u.usuario, u.email, r.nombre AS rol
+    $filas = $pdo->query('SELECT u.id, u.nombre, u.usuario, u.email, u.debe_cambiar_clave, r.nombre AS rol
                             FROM usuarios u JOIN roles r ON r.id = u.rol_id ORDER BY u.id')->fetchAll();
     foreach ($filas as $f) {
         $usuarios[] = ['id' => (int)$f['id'], 'nombre' => $f['nombre'], 'usuario' => $f['usuario'],
-                       'email' => $f['email'], 'rol' => $f['rol']];
+                       'email' => $f['email'], 'rol' => $f['rol'], 'debeCambiar' => (bool)$f['debe_cambiar_clave']];
     }
-} elseif ($u) {
-    $usuarios[] = $u;
+} elseif ($u) { // Un lector (o quien tiene contraseña temporal) solo recibe sus propios datos
+    $usuarios[] = ['id' => $u['id'], 'nombre' => $u['nombre'], 'usuario' => $u['usuario'],
+                   'email' => $u['email'], 'rol' => $u['rol'], 'debeCambiar' => (bool)$u['debe_cambiar_clave']];
 }
 
 // ---------- 4. Préstamos (el personal ve todos; el lector solo los suyos) ----------
 $prestamos = [];
 if ($u) {
-    $sql = 'SELECT id, libro_id, lector_id, fecha_prestamo, fecha_limite, fecha_devolucion, renovado FROM prestamos';
+    $sql = 'SELECT id, libro_id, lector_id, fecha_prestamo, fecha_limite, fecha_devolucion, renovado, multa_pagada FROM prestamos';
     if ($staff) {
         $filas = $pdo->query($sql . ' ORDER BY id')->fetchAll();
     } else {
@@ -86,6 +92,7 @@ if ($u) {
             'limite'   => $f['fecha_limite'],
             'devuelto' => $f['fecha_devolucion'],   // null mientras siga prestado
             'renovado' => (bool)$f['renovado'],
+            'multaPagada' => (bool)$f['multa_pagada'], // true = la multa ya se cobró
         ];
     }
 }
@@ -93,7 +100,7 @@ if ($u) {
 // ---------- 5. Reservas (el personal ve todas; el lector solo las suyas) ----------
 $reservas = [];
 if ($u) {
-    $sql = 'SELECT id, libro_id, lector_id, fecha FROM reservas';
+    $sql = 'SELECT id, libro_id, lector_id, fecha, fecha_aviso FROM reservas';
     if ($staff) {
         $filas = $pdo->query($sql . ' ORDER BY id')->fetchAll();
     } else {
@@ -103,7 +110,9 @@ if ($u) {
     }
     foreach ($filas as $f) {
         $reservas[] = ['id' => (int)$f['id'], 'libroId' => (int)$f['libro_id'], 'lectorId' => (int)$f['lector_id'],
-                       'fecha' => $f['fecha']]; // Fecha y hora en que se hizo la reserva
+                       'fecha' => $f['fecha'],                  // Fecha y hora en que se hizo la reserva
+                       'aviso' => $f['fecha_aviso'],            // Cuándo se le apartó el ejemplar (null = en espera)
+                       'vence' => $f['fecha_aviso'] ? date('Y-m-d', strtotime($f['fecha_aviso'] . ' +' . DIAS_RESERVA . ' days')) : null];
     }
 }
 
@@ -126,6 +135,7 @@ responder([
     'ok'         => true,
     'sesion'     => $u ? $u['id'] : null, // id del usuario con sesión, o null
     'categorias' => $categorias,
+    'multaDia'   => MULTA_DIA,        // Tarifa por día de atraso (única fuente: includes/funciones.php)
     'libros'     => $libros,
     'usuarios'   => $usuarios,
     'prestamos'  => $prestamos,

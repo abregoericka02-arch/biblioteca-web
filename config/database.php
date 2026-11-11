@@ -37,6 +37,9 @@ function getDBConnection(): PDO {
 
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $opciones);
+            // Agrega solas las tablas/columnas nuevas si hacen falta (ver includes/migraciones.php)
+            require_once __DIR__ . '/../includes/migraciones.php';
+            aplicar_migraciones($pdo);
         } catch (PDOException $e) {
             error_log('Error de conexión a MySQL: ' . $e->getMessage()); // Queda en el log de Apache
             http_response_code(500);

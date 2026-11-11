@@ -108,6 +108,7 @@ switch (texto($d['accion'] ?? '')) {
                 $mensaje .= ' (La imagen de portada no era válida y no se guardó).';
             }
         }
+        procesar_reservas($pdo, $id); // Si hay más ejemplares, se apartan para quienes reservaron
         ok($mensaje);
 
     // ------------------------------------------------------------- ELIMINAR

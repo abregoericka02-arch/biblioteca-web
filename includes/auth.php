@@ -23,14 +23,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 /**
  * Devuelve los datos del usuario con sesión iniciada (o null si no hay sesión).
- * Campos: id, nombre, usuario, email, rol.
+ * Campos: id, nombre, usuario, email, rol, debe_cambiar_clave (1 = tiene contraseña temporal).
  */
 function usuario_actual(): ?array {
     $id = (int)($_SESSION['usuario_id'] ?? 0);
     if ($id <= 0) return null;
 
     $q = getDBConnection()->prepare(
-        'SELECT u.id, u.nombre, u.usuario, u.email, r.nombre AS rol
+        'SELECT u.id, u.nombre, u.usuario, u.email, u.debe_cambiar_clave, r.nombre AS rol
            FROM usuarios u JOIN roles r ON r.id = u.rol_id
           WHERE u.id = ?'
     );
@@ -41,13 +41,21 @@ function usuario_actual(): ?array {
         return null;
     }
     $u['id'] = (int)$u['id'];
+    $u['debe_cambiar_clave'] = (int)$u['debe_cambiar_clave'];
     return $u;
 }
 
-/** Exige sesión iniciada; si no, responde 401 y termina. Devuelve el usuario. */
-function requerir_login(): array {
+/**
+ * Exige sesión iniciada; si no, responde 401 y termina. Devuelve el usuario.
+ * Si el usuario tiene una contraseña TEMPORAL (la que le dio el administrador),
+ * no puede hacer nada hasta cambiarla: solo "perfil" y "logout" pasan $permitirTemporal = true.
+ */
+function requerir_login(bool $permitirTemporal = false): array {
     $u = usuario_actual();
     if (!$u) fallo('Debes iniciar sesión.', 401);
+    if ($u['debe_cambiar_clave'] && !$permitirTemporal) {
+        fallo('Debes cambiar tu contraseña temporal antes de continuar. Entra a "Mi perfil".', 403);
+    }
     return $u;
 }
 
@@ -67,5 +75,5 @@ function requerir_admin(): array {
 
 /** Indica si el usuario pertenece al personal (admin o bibliotecario). */
 function es_staff(?array $u): bool {
-    return $u !== null && in_array($u['rol'], ['admin', 'bibliotecario'], true);
+    return $u !== null && !$u['debe_cambiar_clave'] && in_array($u['rol'], ['admin', 'bibliotecario'], true);
 }

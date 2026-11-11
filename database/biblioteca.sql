@@ -21,6 +21,7 @@ USE `biblioteca_db`;
 
 -- 2. Borrar tablas anteriores (se apagan las claves foráneas un momento para poder hacerlo)
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `esquema_version`;
 DROP TABLE IF EXISTS `solicitudes_clave`;
 DROP TABLE IF EXISTS `reservas`;
 DROP TABLE IF EXISTS `prestamos`;
@@ -50,6 +51,7 @@ CREATE TABLE `usuarios` (
     `usuario`        VARCHAR(100) NOT NULL UNIQUE,
     `email`          VARCHAR(150) NOT NULL UNIQUE,
     `password_hash`  VARCHAR(255) NOT NULL,
+    `debe_cambiar_clave` TINYINT(1) NOT NULL DEFAULT 0, -- 1 = tiene contraseña temporal y debe cambiarla al entrar
     `fecha_registro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT `fk_usuarios_roles` FOREIGN KEY (`rol_id`)
         REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -91,6 +93,9 @@ CREATE TABLE `prestamos` (
     `fecha_limite`     DATE NOT NULL,
     `fecha_devolucion` DATE NULL,
     `renovado`         TINYINT(1) NOT NULL DEFAULT 0,
+    `multa_pagada`     TINYINT(1) NOT NULL DEFAULT 0, -- 1 = la multa ya fue cobrada
+    `monto_multa`      DECIMAL(6,2) NULL,             -- cuánto se cobró
+    `fecha_pago`       DATE NULL,                     -- cuándo se cobró
     CONSTRAINT `fk_prestamos_libros` FOREIGN KEY (`libro_id`)
         REFERENCES `libros` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT `fk_prestamos_lectores` FOREIGN KEY (`lector_id`)
@@ -104,6 +109,7 @@ CREATE TABLE `reservas` (
     `libro_id`  INT NOT NULL,
     `lector_id` INT NOT NULL,
     `fecha`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `fecha_aviso` DATETIME NULL, -- cuándo se le apartó un ejemplar (NULL = todavía en espera)
     UNIQUE KEY `uq_reserva` (`libro_id`, `lector_id`),
     CONSTRAINT `fk_reservas_libros` FOREIGN KEY (`libro_id`)
         REFERENCES `libros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -121,6 +127,14 @@ CREATE TABLE `solicitudes_clave` (
     CONSTRAINT `fk_solicitudes_usuarios` FOREIGN KEY (`usuario_id`)
         REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ESQUEMA_VERSION: número de migración aplicada (ver includes/migraciones.php).
+--   Esta instalación ya trae todo, por eso empieza en la última versión (5).
+CREATE TABLE `esquema_version` (
+    `id`      TINYINT NOT NULL PRIMARY KEY,
+    `version` INT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `esquema_version` (`id`, `version`) VALUES (1, 5);
 
 -- ==============================================================================
 -- 4. DATOS DE EJEMPLO (los mismos de la versión JavaScript)
