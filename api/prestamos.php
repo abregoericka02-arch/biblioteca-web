@@ -7,7 +7,8 @@
  *  - Acciones:
  *      crear    -> registra un préstamo (el personal elige lector y días;
  *                  si lo pide un lector, es para él mismo y por 7 días)
- *      devolver -> marca el préstamo como devuelto (hoy)
+ *      devolver -> marca el préstamo como devuelto (hoy). SOLO el personal: es quien
+ *                  confirma que el libro volvió físicamente a la biblioteca
  *      renovar  -> suma 7 días (solo una vez, y no si el libro tiene reservas)
  *  - Reglas: máximo 3 préstamos activos por lector, un lector no puede tener
  *    dos veces el mismo libro y no se presta si no hay ejemplares disponibles.
@@ -86,8 +87,8 @@ switch (texto($d['accion'] ?? '')) {
         $q->execute([$id]);
         $p = $q->fetch();
         if (!$p) fallo('El préstamo no existe.', 404);
-        // Un lector solo puede devolver sus propios préstamos; el personal puede devolver cualquiera
-        if ($u['rol'] === 'lector' && (int)$p['lector_id'] !== $u['id']) fallo('No tienes permiso para esta acción.', 403);
+        // Como en una biblioteca real, la devolución la registra el personal al recibir el libro
+        if ($u['rol'] === 'lector') fallo('Solo el personal de la biblioteca puede registrar devoluciones.', 403);
         if ($p['fecha_devolucion'] !== null) fallo('Ese préstamo ya fue devuelto.');
 
         $q = $pdo->prepare('UPDATE prestamos SET fecha_devolucion = ? WHERE id = ?');

@@ -324,7 +324,7 @@ const vMisBase = () => {
     return tarjeta('Notificaciones', avisos.join('') || '<p>No tienes avisos pendientes.</p>')
         + tarjeta('Mis préstamos e historial', tabla(['Libro', 'Fecha', 'Límite', 'Estado', 'Acción'], [...mios].reverse().map(p => {
             const e = estado(p);
-            return `<tr><td>${esc(getL(p.libroId).titulo)}</td><td>${p.fecha}</td><td>${p.limite}</td><td><span class="badge ${e[1]}">${e[0]}</span></td><td>${p.devuelto ? '' : botonRenovar(p) + `<button class="btn btn-sm btn-exito" data-acc="devolver" data-id="${p.id}">Devolver</button>`}</td></tr>`;
+            return `<tr><td>${esc(getL(p.libroId).titulo)}</td><td>${p.fecha}</td><td>${p.limite}</td><td><span class="badge ${e[1]}">${e[0]}</span></td><td>${p.devuelto ? '' : botonRenovar(p) || '<span class="texto-secundario">Entrégalo en la biblioteca</span>'}</td></tr>`;
         })));
 };
 
@@ -598,8 +598,11 @@ document.addEventListener('click', async e => {
         if (err) return aviso(err, 'danger');
     }
 
-    // --- Devolver un libro ---
+    // --- Devolver un libro (solo el personal; se confirma antes) ---
     if (acc === 'devolver') {
+        // Se pide confirmación para no devolver por error el préstamo equivocado
+        const p = prestamos.find(x => x.id === id);
+        if (p && !confirm('¿Confirmas que ' + getU(p.lectorId).nombre + ' devolvió «' + getL(p.libroId).titulo + '»?')) return;
         const err = await enviar('api/prestamos.php', { accion: 'devolver', id });
         if (err) return aviso(err, 'danger');
     }
