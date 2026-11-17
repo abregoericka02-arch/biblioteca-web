@@ -356,7 +356,7 @@ const vUsuarios = () => { const e = usuarios.find(x => x.id === editUserId) || {
     // Formulario doble: crea un usuario nuevo o edita uno existente (si editUserId tiene un id)
     + tarjeta(editUserId ? 'Editar usuario' : 'Crear usuario', `<form data-form="usuario" novalidate><div class="busqueda-grid">
     ${campo('nombre', 'Nombre completo', e.nombre)}
-    ${editUserId ? `<div class="form-grupo"><span class="form-label">Nombre de usuario</span><p>${esc(e.usuario)}</p></div>` : campo('usuario', 'Nombre de usuario')}
+    ${campo('usuario', 'Nombre de usuario (3 a 20: letras, números, _ o .)', e.usuario)}
     ${campo('email', 'Correo electrónico', e.email, 'email')}
     ${editUserId ? '' : campo('pass', 'Contraseña', '', 'password')}
     ${editUserId && (e.rol === 'admin' || e.id === sesion) ? '' : select('rol', 'Rol', `<option value="bibliotecario" ${e.rol === 'bibliotecario' ? 'selected' : ''}>Bibliotecario</option><option value="lector" ${e.rol === 'lector' ? 'selected' : ''}>Lector</option>`)}
@@ -412,7 +412,8 @@ const vPanel = () => {
 const vPerfil = () => { const u = usuario(); return tarjeta('Mi perfil', `<form data-form="perfil" novalidate>
     ${u.debeCambiar ? '<div class="alerta alerta-warning"><div class="alerta-contenido">Tu contraseña es temporal. Escribe tu contraseña actual (la temporal) y elige una nueva para poder continuar.</div></div>' : ''}
     ${campo('nombre', 'Nombre completo', u.nombre)}${campo('email', 'Correo electrónico', u.email, 'email')}
-    <p class="texto-secundario">Tu usuario para entrar: <strong>${esc(u.usuario)}</strong> (también puedes entrar con tu correo).</p>
+    ${campo('usuario', 'Nombre de usuario (3 a 20: letras, números, _ o .)', u.usuario)}
+    <p class="texto-secundario">Con este usuario o con tu correo puedes iniciar sesión.</p>
     <div class="form-grupo"><label class="form-label" for="actual">Contraseña actual (solo si vas a cambiarla)</label><input class="form-control" id="actual" name="actual" type="password"></div>
     <div class="form-grupo"><label class="form-label" for="nueva">Nueva contraseña</label><input class="form-control" id="nueva" name="nueva" type="password"></div>
     <button class="btn btn-primario">Guardar cambios</button></form>`); };
@@ -554,7 +555,7 @@ const forms = {
     // Cambiar nombre, correo y contraseña. Si tenía contraseña temporal, al cambiarla entra al sistema.
     async perfil(d) {
         const eraTemporal = !!usuario()?.debeCambiar;
-        const err = await enviar('api/sesion.php', { accion: 'perfil', nombre: d.nombre, email: d.email, actual: d.actual, nueva: d.nueva });
+        const err = await enviar('api/sesion.php', { accion: 'perfil', nombre: d.nombre, usuario: d.usuario, email: d.email, actual: d.actual, nueva: d.nueva });
         if (!err && eraTemporal) vista = inicio(usuario());
         return err;
     },
@@ -569,7 +570,7 @@ const forms = {
     // Crear un usuario nuevo o guardar los cambios de uno existente (api/usuarios.php)
     async usuario(d) {
         const err = editUserId
-            ? await enviar('api/usuarios.php', { accion: 'editar', id: editUserId, nombre: d.nombre, email: d.email, rol: d.rol })
+            ? await enviar('api/usuarios.php', { accion: 'editar', id: editUserId, nombre: d.nombre, usuario: d.usuario, email: d.email, rol: d.rol })
             : await enviar('api/usuarios.php', { accion: 'crear', nombre: d.nombre, usuario: d.usuario, email: d.email, pass: d.pass, rol: d.rol });
         if (!err) editUserId = null;
         return err;

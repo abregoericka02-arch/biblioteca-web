@@ -10,7 +10,7 @@
  *      eliminar -> elimina un usuario (no a sí mismo ni si tiene préstamos activos)
  *      restablecer -> asigna una contraseña temporal a un usuario que olvidó la suya
  *      descartar   -> descarta una solicitud de contraseña sin cambiar nada
- *      editar      -> cambia nombre, correo y rol de un usuario
+ *      editar      -> cambia nombre, nombre de usuario, correo y rol de un usuario
  */
 
 require_once __DIR__ . '/../includes/auth.php';
@@ -73,18 +73,27 @@ switch (texto($d['accion'] ?? '')) {
         ok('Contraseña de ' . $nombre . ' restablecida. Entrégale la contraseña temporal y pídele que la cambie en "Mi perfil".');
 
     // --------------------------------------------------------------- EDITAR
-    // Cambia nombre, correo y rol (lector <-> bibliotecario). El usuario y la
-    // contraseña no se tocan aquí (la contraseña se cambia con "Restablecer").
+    // Cambia nombre, nombre de usuario, correo y rol (lector <-> bibliotecario).
+    // La contraseña no se toca aquí (se cambia con "Restablecer").
     case 'editar':
         $id     = (int)($d['id'] ?? 0);
         $nombre = texto($d['nombre'] ?? '');
         $email  = mb_strtolower(texto($d['email'] ?? ''));
         $rol    = texto($d['rol'] ?? '');
+        $nick   = mb_strtolower(texto($d['usuario'] ?? ''));
 
-        $q = $pdo->prepare('SELECT r.nombre AS rol FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = ?');
+        $q = $pdo->prepare('SELECT r.nombre AS rol, u.usuario FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = ?');
         $q->execute([$id]);
-        $rolActual = $q->fetchColumn();
-        if ($rolActual === false) fallo('El usuario ya no existe.', 404);
+        $fila = $q->fetch();
+        if (!$fila) fallo('El usuario ya no existe.', 404);
+        $rolActual = $fila['rol'];
+
+        // El nombre de usuario solo se valida si cambió
+        $cambiaNick = $nick !== '' && $nick !== $fila['usuario'];
+        if ($cambiaNick) {
+            $err = validar_usuario_nuevo($pdo, $nick, $id);
+            if ($err) fallo($err);
+        }
 
         if (mb_strlen($nombre) < 2)   fallo('Escribe el nombre completo.');
         if (mb_strlen($nombre) > 100) fallo('El nombre es demasiado largo (máximo 100 caracteres).');
@@ -114,6 +123,10 @@ switch (texto($d['accion'] ?? '')) {
 
         $q = $pdo->prepare('UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?');
         $q->execute([$nombre, $email, $id]);
+        if ($cambiaNick) {
+            $q = $pdo->prepare('UPDATE usuarios SET usuario = ? WHERE id = ?');
+            $q->execute([$nick, $id]);
+        }
         ok('Usuario actualizado.');
 
     // ------------------------------------------------------------ DESCARTAR

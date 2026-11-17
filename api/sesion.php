@@ -8,7 +8,7 @@
  *      login     -> inicia sesión con usuario o correo + contraseña
  *      logout    -> cierra la sesión
  *      registro  -> crea una cuenta de lector
- *      perfil    -> cambia nombre, correo y (opcional) contraseña del usuario actual
+ *      perfil    -> cambia nombre, nombre de usuario, correo y (opcional) contraseña del usuario actual
  *      olvide    -> el usuario olvidó su contraseña: deja una solicitud para el administrador
  *  - Las contraseñas se comparan con password_verify() contra el hash guardado.
  */
@@ -58,6 +58,7 @@ switch (texto($d['accion'] ?? '')) {
         $u      = requerir_login(true); // true: también puede entrar quien tiene contraseña temporal
         $nombre = texto($d['nombre'] ?? '');
         $email  = mb_strtolower(texto($d['email'] ?? ''));
+        $nick   = mb_strtolower(texto($d['usuario'] ?? '')); // Nombre de usuario para entrar
         $actual = (string)($d['actual'] ?? '');
         $nueva  = (string)($d['nueva'] ?? '');
 
@@ -69,6 +70,13 @@ switch (texto($d['accion'] ?? '')) {
         $q = $pdo->prepare('SELECT COUNT(*) FROM usuarios WHERE email = ? AND id <> ?');
         $q->execute([$email, $u['id']]);
         if ($q->fetchColumn() > 0) fallo('Ese correo ya está en uso.');
+
+        // El nombre de usuario solo se valida si lo cambió (las cuentas antiguas pueden conservar el suyo)
+        $cambiaNick = $nick !== '' && $nick !== $u['usuario'];
+        if ($cambiaNick) {
+            $err = validar_usuario_nuevo($pdo, $nick, $u['id']);
+            if ($err) fallo($err);
+        }
 
         // Con contraseña temporal es OBLIGATORIO elegir una nueva y distinta a la temporal
         if ($u['debe_cambiar_clave'] && $nueva === '') fallo('Debes escribir una nueva contraseña para continuar.');
@@ -86,7 +94,11 @@ switch (texto($d['accion'] ?? '')) {
 
         $q = $pdo->prepare('UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?');
         $q->execute([$nombre, $email, $u['id']]);
-        ok('Perfil actualizado.');
+        if ($cambiaNick) {
+            $q = $pdo->prepare('UPDATE usuarios SET usuario = ? WHERE id = ?');
+            $q->execute([$nick, $u['id']]);
+        }
+        ok($cambiaNick ? 'Perfil actualizado. Ahora entras con el usuario «' . $nick . '».' : 'Perfil actualizado.');
 
     // ---------------------------------------------------------------- OLVIDÉ
     // No requiere sesión. Guarda una solicitud que el administrador verá en "Usuarios".

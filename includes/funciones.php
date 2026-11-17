@@ -124,6 +124,22 @@ function correo_valido(string $email): bool {
 }
 
 /**
+ * Valida un NUEVO nombre de usuario al cambiarlo (Mi perfil o Usuarios > Editar).
+ * Reglas: 3 a 20 caracteres, solo letras minúsculas, números, _ o . y que no lo use otra cuenta.
+ * $idExcluir = id de la cuenta que se está editando (para que no choque consigo misma).
+ * Devuelve el texto del error, o null si es válido.
+ */
+function validar_usuario_nuevo(PDO $pdo, string $nuevo, int $idExcluir): ?string {
+    if (!preg_match('/^[a-z0-9_.]{3,20}$/', $nuevo)) {
+        return 'El usuario debe tener de 3 a 20 caracteres (letras, números, _ o .).';
+    }
+    $q = $pdo->prepare('SELECT COUNT(*) FROM usuarios WHERE usuario = ? AND id <> ?');
+    $q->execute([$nuevo, $idExcluir]);
+    if ($q->fetchColumn() > 0) return 'Ese nombre de usuario ya existe.';
+    return null;
+}
+
+/**
  * Crea un usuario nuevo validando todos los datos.
  * Devuelve un texto con el error, o null si todo salió bien.
  * Lo usan: registro de lectores (sesion.php) y creación por el administrador (usuarios.php).
