@@ -988,27 +988,7 @@ textarea.form-control {
 }
 
 @media (max-width: 768px) {
-    .btn-toggle-menu {
-        display: block;
-    }
-
-    .nav-menu {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background-color: var(--marron-oscuro);
-        padding: 1rem;
-        border-bottom: 3px solid var(--dorado-suave);
-        box-shadow: var(--sombra-lg);
-    }
-
-    .nav-menu.abierto {
-        display: flex;
-    }
-
+    /* (El menú desplegable ☰ ahora se activa a 1100px: ver "Menú adaptable" al final del archivo) */
     .busqueda-grid {
         grid-template-columns: 1fr;
     }
@@ -1137,4 +1117,58 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     inset: 0;
     background: rgba(37, 22, 15, 0.55);
     z-index: -1;
+}
+
+
+/* ===== Menú adaptable =====
+   El menú tiene hasta 10 opciones (Panel, Informes, Catálogo, Libros, Lectores, Préstamos,
+   Usuarios, Mi perfil, Salir y el tema), así que NO cabe en una sola fila en pantallas medianas.
+   Por eso se adapta en tres tamaños:
+   - Más de 1280 px (computadora): menú horizontal normal. Si algo no cabe, baja a otra fila.
+   - Hasta 1280 px: se achican los botones y se acorta el nombre en "Salir (...)".
+   - Hasta 1100 px (tablet y celular): el menú se esconde y se abre con el botón ☰.   */
+.nav-contenedor { gap: 1rem; }
+.nav-contenedor nav { flex: 1; min-width: 0; }              /* El menú puede encogerse en vez de salirse del encabezado */
+.nav-menu { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+.nav-item a { white-space: nowrap; }
+.nav-item a[data-acc="salir"] { display: block; max-width: 16ch; overflow: hidden; text-overflow: ellipsis; } /* "Salir (Ericka Ab…" */
+
+@media (max-width: 1280px) {
+    .nav-item a { padding: 8px 10px; font-size: 0.88rem; }
+    .nav-menu { gap: 4px; }
+}
+
+@media (max-width: 1100px) {
+    .nav-contenedor nav { flex: 0 0 0; }                     /* El menú abierto flota; no ocupa lugar en el encabezado */
+    .btn-toggle-menu { display: block; margin-left: auto; padding: 0.25rem 0.6rem; } /* Botón ☰ pegado a la derecha */
+
+    .nav-menu {
+        display: none;                                       /* Escondido hasta pulsar ☰ */
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 2px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--marron-oscuro);
+        padding: 0.5rem 1rem 1rem;
+        border-bottom: 3px solid var(--dorado-suave);
+        box-shadow: var(--sombra-lg);
+        max-height: calc(100vh - 90px);                      /* Si la lista es larga, se desplaza dentro del menú */
+        max-height: calc(100dvh - 90px);
+        overflow-y: auto;
+    }
+    .nav-menu.abierto { display: flex; }
+
+    .nav-item a { justify-content: center; padding: 12px 14px; font-size: 1rem; }
+    .nav-item a[data-acc="salir"] { display: flex; max-width: none; overflow: visible; } /* En el menú móvil se ve el nombre completo */
+}
+
+/* Celulares pequeños: textos y gráficos más compactos */
+@media (max-width: 480px) {
+    .logo-biblioteca { font-size: 1.15rem; }
+    .barra-etq { flex-basis: 100px; font-size: 0.82rem; }
+    .buscador-tabla { max-width: 100%; }
 }
