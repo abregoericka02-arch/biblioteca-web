@@ -23,6 +23,8 @@ header('Content-Type: text/html; charset=utf-8');
 <body>
     <!-- ===== CABECERA: logo + botón de menú (móvil) + menú de navegación ===== -->
     <header class="navbar-biblioteca">
+        <!-- Capa oscura que tapa la página cuando el menú lateral está abierto (celular y tablet); al tocarla, el menú se cierra -->
+        <div class="nav-fondo" id="navFondo"></div>
         <div class="nav-contenedor contenedor">
             <!-- data-v="inicio": app.js detecta este atributo para cambiar de pantalla -->
             <a href="#" class="logo-biblioteca" data-v="inicio">

@@ -1138,32 +1138,56 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     .nav-menu { gap: 4px; }
 }
 
+/* En computadora no existen ni el botón ✕ ni la capa oscura */
+.nav-item.nav-cerrar, .nav-fondo { display: none; }
+
 @media (max-width: 1100px) {
     .nav-contenedor nav { flex: 0 0 0; }                     /* El menú abierto flota; no ocupa lugar en el encabezado */
     .btn-toggle-menu { display: block; margin-left: auto; padding: 0.25rem 0.6rem; } /* Botón ☰ pegado a la derecha */
 
+    /* --- Panel lateral que se desliza desde la derecha ---
+       Para hacerlo más ancho o más angosto, cambia el "min(230px, 62vw)" de abajo. */
     .nav-menu {
-        display: none;                                       /* Escondido hasta pulsar ☰ */
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(230px, 62vw);
         flex-direction: column;
         flex-wrap: nowrap;
+        justify-content: flex-start;
         align-items: stretch;
         gap: 2px;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
         background-color: var(--marron-oscuro);
-        padding: 0.5rem 1rem 1rem;
-        border-bottom: 3px solid var(--dorado-suave);
+        padding: 0.75rem 0.75rem 1.5rem;
+        border-left: 3px solid var(--dorado-suave);
         box-shadow: var(--sombra-lg);
-        max-height: calc(100vh - 90px);                      /* Si la lista es larga, se desplaza dentro del menú */
-        max-height: calc(100dvh - 90px);
-        overflow-y: auto;
+        overflow-y: auto;                                    /* Si la lista es larga, se desplaza dentro del panel */
+        z-index: 1200;                                       /* Por encima del encabezado y de la capa oscura */
+        transform: translateX(105%);                         /* Escondido fuera de la pantalla, a la derecha */
+        visibility: hidden;
+        transition: transform 0.25s ease, visibility 0.25s;
     }
-    .nav-menu.abierto { display: flex; }
+    .nav-menu.abierto { transform: translateX(0); visibility: visible; }
 
-    .nav-item a { justify-content: center; padding: 12px 14px; font-size: 1rem; }
-    .nav-item a[data-acc="salir"] { display: flex; max-width: none; overflow: visible; } /* En el menú móvil se ve el nombre completo */
+    .nav-item a { justify-content: flex-start; padding: 12px 14px; font-size: 1rem; white-space: normal; }
+    .nav-item a[data-acc="salir"] { display: flex; max-width: none; overflow: visible; } /* En el panel se ve el nombre completo */
+    .nav-item.nav-cerrar { display: block; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(235, 218, 197, 0.25); }
+    .nav-item.nav-cerrar a { justify-content: flex-end; color: var(--dorado-suave); }
+
+    /* Capa oscura detrás del panel */
+    .nav-fondo {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;                                /* Invisible y sin bloquear toques mientras el panel está cerrado */
+        transition: opacity 0.25s ease;
+        z-index: 1100;
+    }
+    .nav-fondo.visible { opacity: 1; pointer-events: auto; }
+    body.menu-abierto { overflow: hidden; }
 }
 
 /* Celulares pequeños: textos y gráficos más compactos */

@@ -512,10 +512,11 @@ function render() {
     const menu = forzar ? [] : !u ? [['portada', 'Inicio'], ['login', 'Ingresar'], ['registro', 'Registrarse']] : u.rol !== 'lector'
         ? [['panel', 'Panel e informe'], ['informes', 'Informes'], ['catalogo', 'Catálogo'], ['libros', 'Libros'], ['lectores', 'Lectores'], ['prestamos', 'Préstamos'], ...(u.rol === 'admin' ? [['usuarios', 'Usuarios']] : [])]
         : [['catalogo', 'Catálogo'], ['mis', 'Mis préstamos']];
-    $('#nav').innerHTML = menu.map(([v, t]) => `<li class="nav-item"><a href="#" data-v="${v}" class="${v === vista ? 'activo' : ''}">${t}</a></li>`).join('')
+    $('#nav').innerHTML = '<li class="nav-item nav-cerrar"><a href="#" data-acc="cerrarMenu" aria-label="Cerrar menú">✕ Cerrar</a></li>' // Solo se ve en el menú lateral
+        + menu.map(([v, t]) => `<li class="nav-item"><a href="#" data-v="${v}" class="${v === vista ? 'activo' : ''}">${t}</a></li>`).join('')
         + (u ? `<li class="nav-item"><a href="#" data-v="perfil" class="${vista === 'perfil' ? 'activo' : ''}">Mi perfil</a></li><li class="nav-item"><a href="#" data-acc="salir">Salir (${esc(u.nombre)})</a></li>` : '')
         + '<li class="nav-item"><a href="#" data-acc="tema" aria-label="Cambiar entre modo claro y oscuro">🌓</a></li>';
-    $('#nav').classList.remove('abierto'); // Cierra el menú en móvil
+    cerrarMenu(); // Al cambiar de pantalla se cierra el menú lateral (celular y tablet)
 
     // --- Pantalla: busca la función de la vista actual y pega su HTML en <main> ---
     const vistas = { olvide: vOlvide, login: vLogin, registro: vRegistro, panel: vPanel, catalogo: vCatalogo, libros: vLibros, lectores: vLectores, prestamos: vPrestamos, mis: vMis, usuarios: vUsuarios, informes: vInformes, portada: vPortada, perfil: vPerfil };
@@ -617,6 +618,7 @@ document.addEventListener('click', async e => {
     if (v) { vista = v === 'inicio' ? (usuario() ? inicio(usuario()) : 'portada') : v; editId = null; editUserId = null; $('#aviso').innerHTML = ''; return render(); }
 
     // --- Acciones que no cambian datos ---
+    if (acc === 'cerrarMenu') return cerrarMenu();                       // Botón ✕ del menú lateral
     if (acc === 'imprimir') return window.print();                       // Imprime el informe
     if (acc === 'cerrar') return $('#dlg').close();                      // Cierra la ventana de detalle
     if (acc === 'tema') return aplicarTema(document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro');
@@ -725,7 +727,26 @@ document.addEventListener('click', async e => {
 });
 
 // Botón ☰ del menú en pantallas pequeñas: abre y cierra el menú
-$('#btnMenu').addEventListener('click', () => $('#nav').classList.toggle('abierto'));
+// ===== Menú lateral (celular y tablet) =====
+// Abre el panel lateral y oscurece el resto de la pantalla
+function abrirMenu() {
+    $('#nav').classList.add('abierto');
+    $('#navFondo').classList.add('visible');
+    $('#btnMenu').setAttribute('aria-expanded', 'true');
+    document.body.classList.add('menu-abierto'); // Evita que la página de atrás se desplace
+}
+// Cierra el panel lateral
+function cerrarMenu() {
+    $('#nav').classList.remove('abierto');
+    $('#navFondo').classList.remove('visible');
+    $('#btnMenu').setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-abierto');
+}
+// Botón ☰: abre o cierra el panel
+$('#btnMenu').addEventListener('click', () => ($('#nav').classList.contains('abierto') ? cerrarMenu() : abrirMenu()));
+// Tocar la capa oscura o pulsar Esc también cierra el panel
+$('#navFondo').addEventListener('click', cerrarMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenu(); });
 
 
 /* ==============================================================================
