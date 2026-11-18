@@ -427,7 +427,7 @@ const vPerfil = () => { const u = usuario(); return tarjeta('Configurar perfil',
     <div class="form-grupo"><label class="form-label" for="nueva">Nueva contraseña</label><input class="form-control" id="nueva" name="nueva" type="password"></div>
     <button class="btn btn-primario">Guardar cambios</button></form>`); };
 
-// Pantalla de bienvenida para visitantes: banner + 4 libros destacados + horarios
+// Pantalla de bienvenida (el logo del menú lleva aquí): banner + 4 libros destacados + horarios
 const vPortada = () => `<section class="hero-portada"><h1>Bienvenido al Sistema Biblioteca</h1>
     <p>Consulta el catálogo, reserva y pide prestados tus libros desde cualquier lugar.</p>
     <a href="#" class="btn btn-dorado" data-v="login">Ingresar</a> <a href="#" class="btn btn-outline" data-v="registro">Crear cuenta</a></section>`
@@ -511,7 +511,7 @@ function render() {
 
     // --- Control de acceso en pantalla (el servidor también lo valida) ---
     if (!u && !['portada', 'login', 'registro', 'olvide'].includes(vista)) vista = 'portada'; // Visitante: solo pantallas públicas
-    if (u && ['portada', 'login', 'registro', 'olvide'].includes(vista)) vista = inicio(u);   // Con sesión: salta las públicas
+    if (u && ['login', 'registro', 'olvide'].includes(vista)) vista = inicio(u);              // Con sesión: salta las de acceso (la bienvenida sí se puede ver)
     if (u && u.rol === 'lector' && STAFF_V.includes(vista)) vista = 'catalogo';     // Lector no entra al panel del personal
     if (u && u.rol === 'bibliotecario' && vista === 'usuarios') vista = 'panel';    // Solo el admin gestiona usuarios
     const forzar = !!u?.debeCambiar;                                                 // Tiene contraseña temporal: solo puede ir a Configurar perfil
@@ -630,7 +630,9 @@ document.addEventListener('click', async e => {
     const { v, acc } = el.dataset, id = Number(el.dataset.id);
 
     // --- Navegación entre pantallas ---
-    if (v) { vista = v === 'inicio' ? (usuario() ? inicio(usuario()) : 'portada') : v; editId = null; editUserId = null; $('#aviso').innerHTML = ''; return render(); }
+    // (data-v="inicio" es el logo: cierra la sesión si hay una abierta y lleva a la pantalla de bienvenida)
+    if (v === 'inicio' && usuario()) { await api('api/sesion.php', { accion: 'logout' }); await cargar(); }
+    if (v) { vista = v === 'inicio' ? 'portada' : v; editId = null; editUserId = null; $('#aviso').innerHTML = ''; return render(); }
 
     // --- Acciones que no cambian datos ---
     if (acc === 'cerrarMenu') return cerrarMenu();                       // Botón ✕ del menú lateral
@@ -769,4 +771,4 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenu()
    ============================================================================== */
 // Al abrir la página: se piden los datos al servidor (y se detecta si ya hay una sesión
 // abierta) y luego se dibuja la pantalla correspondiente
-(async () => { await cargar(); render(); })();
+(async () => { await cargar(); if (usuario()) vista = inicio(usuario()); render(); })();   // Con sesión abierta, arranca en su pantalla inicial
