@@ -124,7 +124,7 @@ function correo_valido(string $email): bool {
 }
 
 /**
- * Valida un NUEVO nombre de usuario al cambiarlo (Mi perfil o Usuarios > Editar).
+ * Valida un NUEVO nombre de usuario al cambiarlo (Configurar perfil o Usuarios > Editar).
  * Reglas: 3 a 20 caracteres, solo letras minúsculas, números, _ o . y que no lo use otra cuenta.
  * $idExcluir = id de la cuenta que se está editando (para que no choque consigo misma).
  * Devuelve el texto del error, o null si es válido.

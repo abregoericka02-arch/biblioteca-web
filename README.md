@@ -74,7 +74,7 @@ Las notificaciones y los informes de la carpeta 1 se mantienen tal cual
 - **Lector o bibliotecario:** en el login pulsa **¿Olvidaste tu contraseña?** y escribe su
   correo o usuario. El administrador ve la solicitud en **Usuarios > Solicitudes de contraseña**,
   pulsa **Restablecer**, escribe una contraseña temporal y se la entrega a la persona
-  (en persona, WhatsApp, etc.). La persona entra con esa clave y la cambia en **Mi perfil**.
+  (en persona, WhatsApp, etc.). La persona entra con esa clave y la cambia en **Configurar perfil**.
   El administrador también puede **Descartar** una solicitud.
 - **Administrador:** abre la terminal de XAMPP (botón *Shell*) dentro de la carpeta
   del proyecto y escribe: `php database/restablecer_admin.php NuevaClave123`
@@ -102,7 +102,7 @@ ya no hacen falta: se pueden borrar.)
 - Cuando el administrador restablece una contraseña, es temporal: la persona debe cambiarla
   en el primer inicio de sesión.
 
-## Usuarios de prueba (cámbialos en "Mi perfil" antes de presentar el proyecto)
+## Usuarios de prueba (cámbialos en "Configurar perfil" antes de presentar el proyecto)
 
 | Rol           | Usuario | Contraseña |
 |---------------|---------|------------|

@@ -30,6 +30,15 @@ const $ = s => document.querySelector(s);
 // usuario nunca se interprete como HTML (evita ataques XSS al usar innerHTML)
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Icono de libros (el mismo del encabezado); se usa también en el menú lateral
+const ICONO_LIBROS = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4z"/><path d="M9 4h4v16H9z"/><path d="M14.6 5.4l3.9-1 3 15.2-3.9 1z"/></svg>';
+
+// Escribe la fecha de hoy completa, por ejemplo: "martes, 17 de noviembre de 2026"
+function pintarFecha() {
+    const f = new Date().toLocaleDateString('es-PA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    $('#fechaHoy').textContent = f;
+}
+
 // Convierte un objeto Date a texto AAAA-MM-DD usando la hora local
 const fmt = d => new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
@@ -409,7 +418,7 @@ const vPanel = () => {
 };
 
 // Pantalla: mi perfil (cambiar nombre, correo y contraseña)
-const vPerfil = () => { const u = usuario(); return tarjeta('Mi perfil', `<form data-form="perfil" novalidate>
+const vPerfil = () => { const u = usuario(); return tarjeta('Configurar perfil', `<form data-form="perfil" novalidate>
     ${u.debeCambiar ? '<div class="alerta alerta-warning"><div class="alerta-contenido">Tu contraseña es temporal. Escribe tu contraseña actual (la temporal) y elige una nueva para poder continuar.</div></div>' : ''}
     ${campo('nombre', 'Nombre completo', u.nombre)}${campo('email', 'Correo electrónico', u.email, 'email')}
     ${campo('usuario', 'Nombre de usuario (3 a 20: letras, números, _ o .)', u.usuario)}
@@ -505,17 +514,23 @@ function render() {
     if (u && ['portada', 'login', 'registro', 'olvide'].includes(vista)) vista = inicio(u);   // Con sesión: salta las públicas
     if (u && u.rol === 'lector' && STAFF_V.includes(vista)) vista = 'catalogo';     // Lector no entra al panel del personal
     if (u && u.rol === 'bibliotecario' && vista === 'usuarios') vista = 'panel';    // Solo el admin gestiona usuarios
-    const forzar = !!u?.debeCambiar;                                                 // Tiene contraseña temporal: solo puede ir a Mi perfil
+    const forzar = !!u?.debeCambiar;                                                 // Tiene contraseña temporal: solo puede ir a Configurar perfil
     if (forzar) vista = 'perfil';
 
     // --- Menú según el rol: visitante / personal / lector ---
     const menu = forzar ? [] : !u ? [['portada', 'Inicio'], ['login', 'Ingresar'], ['registro', 'Registrarse']] : u.rol !== 'lector'
         ? [['panel', 'Panel e informe'], ['informes', 'Informes'], ['catalogo', 'Catálogo'], ['libros', 'Libros'], ['lectores', 'Lectores'], ['prestamos', 'Préstamos'], ...(u.rol === 'admin' ? [['usuarios', 'Usuarios']] : [])]
         : [['catalogo', 'Catálogo'], ['mis', 'Mis préstamos']];
-    $('#nav').innerHTML = '<li class="nav-item nav-cerrar"><a href="#" data-acc="cerrarMenu" aria-label="Cerrar menú">✕ Cerrar</a></li>' // Solo se ve en el menú lateral
+    // Bloque de arriba del menú lateral: icono + nombre de la biblioteca + botón ✕ (solo se ve en celular y tablet)
+    const marca = `<li class="nav-item nav-marca"><span class="logo-icono">${ICONO_LIBROS}</span><span class="nav-marca-texto">Biblioteca <small>CRUBO</small></span><a href="#" class="nav-x" data-acc="cerrarMenu" aria-label="Cerrar menú">✕</a></li>`;
+    // Tarjeta con el nombre de quien tiene la sesión y su rol (ADMIN, BIBLIOTECARIO o LECTOR)
+    const tarjetaUsuario = u ? `<li class="nav-item nav-usuario"><span class="avatar">${esc(u.nombre.trim()[0] || '?').toUpperCase()}</span><span class="usuario-datos"><strong>${esc(u.nombre)}</strong><span class="rol-etiqueta">${esc(u.rol === 'admin' ? 'ADMIN' : u.rol.toUpperCase())}</span></span></li>` : '';
+    $('#nav').innerHTML = marca + tarjetaUsuario
         + menu.map(([v, t]) => `<li class="nav-item"><a href="#" data-v="${v}" class="${v === vista ? 'activo' : ''}">${t}</a></li>`).join('')
-        + (u ? `<li class="nav-item"><a href="#" data-v="perfil" class="${vista === 'perfil' ? 'activo' : ''}">Mi perfil</a></li><li class="nav-item"><a href="#" data-acc="salir">Salir (${esc(u.nombre)})</a></li>` : '')
-        + '<li class="nav-item"><a href="#" data-acc="tema" aria-label="Cambiar entre modo claro y oscuro">🌓</a></li>';
+        + (u ? `<li class="nav-item"><a href="#" data-v="perfil" class="nav-config ${vista === 'perfil' ? 'activo' : ''}">Configurar perfil</a></li>` : '')
+        + '<li class="nav-item"><a href="#" data-acc="tema" aria-label="Cambiar entre modo claro y oscuro">🌓</a></li>'
+        + (u ? '<li class="nav-item nav-salir-li"><a href="#" class="nav-salir" data-acc="salir">Cerrar sesión</a></li>' : '');
+    pintarFecha(); // Actualiza la fecha de hoy
     cerrarMenu(); // Al cambiar de pantalla se cierra el menú lateral (celular y tablet)
 
     // --- Pantalla: busca la función de la vista actual y pega su HTML en <main> ---

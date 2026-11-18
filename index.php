@@ -28,6 +28,8 @@ header('Content-Type: text/html; charset=utf-8');
         <div class="nav-contenedor contenedor">
             <!-- data-v="inicio": app.js detecta este atributo para cambiar de pantalla -->
             <a href="#" class="logo-biblioteca" data-v="inicio">
+                <!-- Icono de libros dentro de un círculo (a la izquierda del nombre) -->
+                <span class="logo-icono"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4z"/><path d="M9 4h4v16H9z"/><path d="M14.6 5.4l3.9-1 3 15.2-3.9 1z"/></svg></span>
                 <div class="logo-texto">Biblioteca <span>CRUBO</span></div>
             </a>
             <!-- Botón ☰ que abre/cierra el menú en pantallas pequeñas -->
@@ -38,6 +40,9 @@ header('Content-Type: text/html; charset=utf-8');
             </nav>
         </div>
     </header>
+
+    <!-- Fecha de hoy (app.js la escribe): una línea pequeña, a la derecha, que no estorba -->
+    <div class="contenedor barra-fecha"><span id="fechaHoy"></span></div>
 
     <!-- Zona donde app.js muestra mensajes de éxito, error o aviso -->
     <div id="aviso" class="contenedor" role="status"></div>

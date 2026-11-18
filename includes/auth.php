@@ -54,7 +54,7 @@ function requerir_login(bool $permitirTemporal = false): array {
     $u = usuario_actual();
     if (!$u) fallo('Debes iniciar sesión.', 401);
     if ($u['debe_cambiar_clave'] && !$permitirTemporal) {
-        fallo('Debes cambiar tu contraseña temporal antes de continuar. Entra a "Mi perfil".', 403);
+        fallo('Debes cambiar tu contraseña temporal antes de continuar. Entra a "Configurar perfil".', 403);
     }
     return $u;
 }

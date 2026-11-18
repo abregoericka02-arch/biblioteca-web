@@ -48,11 +48,11 @@ switch (texto($d['accion'] ?? '')) {
 
     // ---------------------------------------------------------- RESTABLECER
     // El admin escribe una contraseña temporal y se la da al usuario, que luego
-    // la cambia desde "Mi perfil". Se guarda cifrada (bcrypt), igual que las demás.
+    // la cambia desde "Configurar perfil". Se guarda cifrada (bcrypt), igual que las demás.
     case 'restablecer':
         $id   = (int)($d['id'] ?? 0);
         $pass = (string)($d['pass'] ?? '');
-        if ($id === $u['id']) fallo('Para cambiar tu propia contraseña usa "Mi perfil".');
+        if ($id === $u['id']) fallo('Para cambiar tu propia contraseña usa "Configurar perfil".');
         if (mb_strlen($pass) < 6) fallo('La contraseña temporal debe tener al menos 6 caracteres.');
 
         $q = $pdo->prepare('SELECT nombre FROM usuarios WHERE id = ?');
@@ -70,7 +70,7 @@ switch (texto($d['accion'] ?? '')) {
             $q->execute([$id]);
         } catch (PDOException $e) { /* La tabla aún no existe: no pasa nada */ }
 
-        ok('Contraseña de ' . $nombre . ' restablecida. Entrégale la contraseña temporal y pídele que la cambie en "Mi perfil".');
+        ok('Contraseña de ' . $nombre . ' restablecida. Entrégale la contraseña temporal y pídele que la cambie en "Configurar perfil".');
 
     // --------------------------------------------------------------- EDITAR
     // Cambia nombre, nombre de usuario, correo y rol (lector <-> bibliotecario).

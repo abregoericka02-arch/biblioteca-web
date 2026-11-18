@@ -1121,27 +1121,27 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
 
 
 /* ===== Menú adaptable =====
+   (Los botones "Configurar perfil" y "Cerrar sesión", la tarjeta del usuario y el icono están en la sección "Rediseño del menú", más abajo.)
    El menú tiene hasta 10 opciones (Panel, Informes, Catálogo, Libros, Lectores, Préstamos,
    Usuarios, Mi perfil, Salir y el tema), así que NO cabe en una sola fila en pantallas medianas.
    Por eso se adapta en tres tamaños:
-   - Más de 1280 px (computadora): menú horizontal normal. Si algo no cabe, baja a otra fila.
-   - Hasta 1280 px: se achican los botones y se acorta el nombre en "Salir (...)".
-   - Hasta 1100 px (tablet y celular): el menú se esconde y se abre con el botón ☰.   */
+   - Más de 1500 px (computadora grande): menú horizontal normal. Si algo no cabe, baja a otra fila.
+   - Hasta 1500 px: se achican los botones y se acorta el nombre en "Salir (...)".
+   - Hasta 1400 px (laptop pequeña, tablet y celular): el menú se esconde y se abre con el botón ☰.   */
 .nav-contenedor { gap: 1rem; }
 .nav-contenedor nav { flex: 1; min-width: 0; }              /* El menú puede encogerse en vez de salirse del encabezado */
 .nav-menu { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
 .nav-item a { white-space: nowrap; }
-.nav-item a[data-acc="salir"] { display: block; max-width: 16ch; overflow: hidden; text-overflow: ellipsis; } /* "Salir (Ericka Ab…" */
 
-@media (max-width: 1280px) {
+@media (max-width: 1500px) {
     .nav-item a { padding: 8px 10px; font-size: 0.88rem; }
     .nav-menu { gap: 4px; }
 }
 
-/* En computadora no existen ni el botón ✕ ni la capa oscura */
-.nav-item.nav-cerrar, .nav-fondo { display: none; }
+/* En computadora no existen ni el bloque de marca del panel (con ✕) ni la capa oscura */
+.nav-marca, .nav-fondo { display: none; }
 
-@media (max-width: 1100px) {
+@media (max-width: 1400px) {
     .nav-contenedor nav { flex: 0 0 0; }                     /* El menú abierto flota; no ocupa lugar en el encabezado */
     .btn-toggle-menu { display: block; margin-left: auto; padding: 0.25rem 0.6rem; } /* Botón ☰ pegado a la derecha */
 
@@ -1171,9 +1171,6 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     .nav-menu.abierto { transform: translateX(0); visibility: visible; }
 
     .nav-item a { justify-content: flex-start; padding: 12px 14px; font-size: 1rem; white-space: normal; }
-    .nav-item a[data-acc="salir"] { display: flex; max-width: none; overflow: visible; } /* En el panel se ve el nombre completo */
-    .nav-item.nav-cerrar { display: block; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(235, 218, 197, 0.25); }
-    .nav-item.nav-cerrar a { justify-content: flex-end; color: var(--dorado-suave); }
 
     /* Capa oscura detrás del panel */
     .nav-fondo {
@@ -1195,4 +1192,84 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     .logo-biblioteca { font-size: 1.15rem; }
     .barra-etq { flex-basis: 100px; font-size: 0.82rem; }
     .buscador-tabla { max-width: 100%; }
+}
+
+
+/* ===== Rediseño del menú =====
+   Icono de libros, tarjeta del usuario (nombre + rol), botones "Configurar perfil" y
+   "Cerrar sesión" con color propio, y la fecha de hoy.
+   En computadora: el nombre y el rol salen como una pastilla pequeña dentro del encabezado.
+   En celular y tablet (panel lateral): salen como tarjeta debajo del nombre de la biblioteca. */
+
+/* --- Icono de libros dentro de un círculo claro --- */
+.logo-icono {
+    width: 42px; height: 42px; flex: 0 0 auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: #F5EFE6;
+    color: var(--marron-cafe);
+}
+.logo-icono svg { width: 24px; height: 24px; }
+
+/* --- Nombre y rol de la persona --- */
+.nav-usuario {
+    order: 90;                                  /* Va casi al final de la fila del encabezado */
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 6px; padding: 4px 12px 4px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    color: #FFFFFF;
+}
+.nav-usuario .avatar {
+    width: 28px; height: 28px; flex: 0 0 auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: #A8733F; color: #FFFFFF; font-weight: 700; font-size: 0.85rem;
+}
+.usuario-datos { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.usuario-datos strong { font-size: 0.82rem; max-width: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rol-etiqueta {
+    align-self: flex-start;
+    margin-top: 2px; padding: 1px 7px;
+    border-radius: 6px;
+    background: #F6EEDF; color: var(--marron-cafe);
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.5px;
+}
+
+/* --- Botón "Configurar perfil" (color ocre) --- */
+.nav-item a.nav-config { background: #A8733F; color: #FFFFFF; font-weight: 600; }
+.nav-item a.nav-config:hover, .nav-item a.nav-config.activo { background: #BC8650; color: #FFFFFF; }
+
+/* --- Botón "Cerrar sesión" (tono rojizo) --- */
+.nav-salir-li { order: 99; }                    /* Siempre al final de la fila */
+.nav-item a.nav-salir {
+    background: rgba(190, 60, 85, 0.18);
+    border: 1px solid rgba(225, 100, 120, 0.65);
+    color: #FFB8C4; font-weight: 600;
+}
+.nav-item a.nav-salir:hover { background: rgba(190, 60, 85, 0.35); color: #FFFFFF; }
+
+/* --- Fecha de hoy: línea pequeña, a la derecha, debajo del encabezado --- */
+.barra-fecha { text-align: right; padding-top: 0.75rem; padding-bottom: 0; font-size: 0.85rem; opacity: 0.8; }
+
+/* --- Panel lateral (celular y tablet): marca arriba, tarjeta del usuario, opciones y "Cerrar sesión" al fondo --- */
+@media (max-width: 1400px) {
+    .nav-marca {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.25rem 0.25rem 0.9rem;
+        color: #FFFFFF;
+    }
+    .nav-marca-texto { font-family: var(--fuente-titulos); font-weight: 700; font-size: 1.1rem; line-height: 1.1; }
+    .nav-marca-texto small { display: block; color: var(--dorado-suave); font-family: var(--fuente-texto); font-weight: 400; font-size: 0.72rem; letter-spacing: 1px; }
+    .nav-item a.nav-x { margin-left: auto; padding: 6px 10px; color: var(--dorado-suave); font-size: 1.1rem; }
+
+    .nav-usuario { order: 0; margin: 0 0 0.75rem; padding: 0.6rem; border-radius: 12px; background: rgba(255, 255, 255, 0.1); }
+    .nav-usuario .avatar { width: 38px; height: 38px; font-size: 1rem; }
+    .usuario-datos strong { font-size: 0.95rem; max-width: none; white-space: normal; }
+    .rol-etiqueta { font-size: 0.68rem; }
+
+    .nav-item a.nav-config { margin-top: 0.5rem; }
+    .nav-salir-li { order: 0; margin-top: auto; padding-top: 1rem; }   /* margin-top:auto lo baja hasta el fondo del panel */
+    .nav-item a.nav-salir { justify-content: center; }
 }
