@@ -1145,12 +1145,12 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     .nav-contenedor nav { flex: 0 0 0; }                     /* El menú abierto flota; no ocupa lugar en el encabezado */
     .btn-toggle-menu { display: block; margin-left: auto; padding: 0.25rem 0.6rem; } /* Botón ☰ pegado a la derecha */
 
-    /* --- Panel lateral que se desliza desde la derecha ---
+    /* --- Panel lateral que se desliza desde la izquierda ---
        Para hacerlo más ancho o más angosto, cambia el "min(230px, 62vw)" de abajo. */
     .nav-menu {
         position: fixed;
         top: 0;
-        right: 0;
+        left: 0;
         bottom: 0;
         width: min(230px, 62vw);
         flex-direction: column;
@@ -1160,11 +1160,11 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
         gap: 2px;
         background-color: var(--marron-oscuro);
         padding: 0.75rem 0.75rem 1.5rem;
-        border-left: 3px solid var(--dorado-suave);
+        border-right: 3px solid var(--dorado-suave);
         box-shadow: var(--sombra-lg);
         overflow-y: auto;                                    /* Si la lista es larga, se desplaza dentro del panel */
         z-index: 1200;                                       /* Por encima del encabezado y de la capa oscura */
-        transform: translateX(105%);                         /* Escondido fuera de la pantalla, a la derecha */
+        transform: translateX(-105%);                        /* Escondido fuera de la pantalla, a la izquierda */
         visibility: hidden;
         transition: transform 0.25s ease, visibility 0.25s;
     }
