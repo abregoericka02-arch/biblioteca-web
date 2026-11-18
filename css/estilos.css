@@ -1127,7 +1127,7 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
    Por eso se adapta en tres tamaños:
    - Más de 1500 px (computadora grande): menú horizontal normal. Si algo no cabe, baja a otra fila.
    - Hasta 1500 px: se achican los botones y se acorta el nombre en "Salir (...)".
-   - Hasta 1400 px (laptop pequeña, tablet y celular): el menú se esconde y se abre con el botón ☰.   */
+   - Hasta 1100 px (tablet y celular): el menú se esconde y se abre con el botón ☰.   */
 .nav-contenedor { gap: 1rem; }
 .nav-contenedor nav { flex: 1; min-width: 0; }              /* El menú puede encogerse en vez de salirse del encabezado */
 .nav-menu { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
@@ -1141,7 +1141,7 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
 /* En computadora no existen ni el bloque de marca del panel (con ✕) ni la capa oscura */
 .nav-marca, .nav-fondo { display: none; }
 
-@media (max-width: 1400px) {
+@media (max-width: 1100px) {
     .nav-contenedor nav { flex: 0 0 0; }                     /* El menú abierto flota; no ocupa lugar en el encabezado */
     .btn-toggle-menu { display: block; margin-left: auto; padding: 0.25rem 0.6rem; } /* Botón ☰ pegado a la derecha */
 
@@ -1218,7 +1218,7 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     margin-left: 6px; padding: 4px 12px 4px 6px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 999px;
+    border-radius: var(--radio-sm);   /* Esquinas iguales a las de los demás botones */
     color: #FFFFFF;
 }
 .nav-usuario .avatar {
@@ -1254,7 +1254,7 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
 .barra-fecha { text-align: right; padding-top: 0.75rem; padding-bottom: 0; font-size: 0.85rem; opacity: 0.8; }
 
 /* --- Panel lateral (celular y tablet): marca arriba, tarjeta del usuario, opciones y "Cerrar sesión" al fondo --- */
-@media (max-width: 1400px) {
+@media (max-width: 1100px) {
     .nav-marca {
         display: flex; align-items: center; gap: 0.6rem;
         padding: 0.25rem 0.25rem 0.9rem;
@@ -1272,4 +1272,35 @@ th[data-o="d"]::after { content: ' ▼'; opacity: 1; }
     .nav-item a.nav-config { margin-top: 0.5rem; }
     .nav-salir-li { order: 0; margin-top: auto; padding-top: 1rem; }   /* margin-top:auto lo baja hasta el fondo del panel */
     .nav-item a.nav-salir { justify-content: center; }
+}
+
+/* --- Barra de computadora (más de 1100 px): todo en una sola fila ---
+   Se achican un poco los espacios para que "Cerrar sesión" no se baje a una segunda fila. */
+@media (min-width: 1101px) {
+    .nav-contenedor { gap: 0.6rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .nav-menu { gap: 2px; flex-wrap: nowrap; }
+    .nav-item a { padding: 8px 9px; font-size: 0.86rem; }
+    .nav-usuario { margin-left: 2px; }
+    .logo-biblioteca { font-size: 1.2rem; gap: 10px; white-space: nowrap; }
+}
+
+/* --- Logo del panel lateral: al tocarlo lleva al inicio (igual que el logo del encabezado) --- */
+.nav-item a.nav-marca-enlace {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0; background: none; border: none; color: #FFFFFF;
+}
+.nav-item a.nav-marca-enlace:hover { background: none; border: none; }
+
+/* --- Panel lateral: sin barra de desplazamiento horizontal ---
+   Si la ventana es baja, el panel muestra solo la barra vertical (a la derecha).
+   Se ensancha un poco para que el logo y la ✕ quepan aunque esa barra ocupe espacio. */
+@media (max-width: 1100px) {
+    .nav-menu {
+        width: min(250px, 72vw);
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--dorado-suave) transparent;
+    }
+    .nav-item.nav-marca { min-width: 0; }
+    .nav-item a.nav-marca-enlace { min-width: 0; flex: 1 1 auto; }
 }

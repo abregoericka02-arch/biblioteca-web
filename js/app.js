@@ -522,7 +522,7 @@ function render() {
         ? [['panel', 'Panel e informe'], ['informes', 'Informes'], ['catalogo', 'Catálogo'], ['libros', 'Libros'], ['lectores', 'Lectores'], ['prestamos', 'Préstamos'], ...(u.rol === 'admin' ? [['usuarios', 'Usuarios']] : [])]
         : [['catalogo', 'Catálogo'], ['mis', 'Mis préstamos']];
     // Bloque de arriba del menú lateral: icono + nombre de la biblioteca + botón ✕ (solo se ve en celular y tablet)
-    const marca = `<li class="nav-item nav-marca"><span class="logo-icono">${ICONO_LIBROS}</span><span class="nav-marca-texto">Biblioteca <small>CRUBO</small></span><a href="#" class="nav-x" data-acc="cerrarMenu" aria-label="Cerrar menú">✕</a></li>`;
+    const marca = `<li class="nav-item nav-marca"><a href="#" class="nav-marca-enlace" data-v="inicio" aria-label="Ir al inicio"><span class="logo-icono">${ICONO_LIBROS}</span><span class="nav-marca-texto">Biblioteca <small>CRUBO</small></span></a></li>`;
     // Tarjeta con el nombre de quien tiene la sesión y su rol (ADMIN, BIBLIOTECARIO o LECTOR)
     const tarjetaUsuario = u ? `<li class="nav-item nav-usuario"><span class="avatar">${esc(u.nombre.trim()[0] || '?').toUpperCase()}</span><span class="usuario-datos"><strong>${esc(u.nombre)}</strong><span class="rol-etiqueta">${esc(u.rol === 'admin' ? 'ADMIN' : u.rol.toUpperCase())}</span></span></li>` : '';
     $('#nav').innerHTML = marca + tarjetaUsuario
