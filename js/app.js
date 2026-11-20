@@ -723,6 +723,12 @@ document.addEventListener('click', async e => {
         if (nueva === null) return; // Canceló
         const err = await enviar('api/usuarios.php', { accion: 'restablecer', id, pass: nueva });
         if (err) return aviso(err, 'danger');
+        // Después de restablecer: enlace mailto para avisar a la persona (se abre el programa de correo del administrador)
+        const persona = getU(id);
+        const asunto = encodeURIComponent('Restablecimiento de contraseña - Biblioteca CRUBO');
+        const cuerpo = encodeURIComponent('Hola ' + persona.nombre + ',\n\nSe restableció tu contraseña en el Sistema de Biblioteca.\n\nUsuario: ' + persona.usuario + '\nContraseña temporal: ' + nueva + '\n\nAl ingresar, el sistema te pedirá cambiarla en «Configurar perfil».\n\nBiblioteca CRUBO');
+        $('#aviso').insertAdjacentHTML('beforeend', `<div class="alerta alerta-warning"><div class="alerta-contenido">Avisa a la persona: <a href="mailto:${esc(persona.email)}?subject=${asunto}&body=${cuerpo}">Escribir al correo (${esc(persona.email)})</a></div></div>`);
+
     }
 
     // --- Descartar una solicitud de contraseña (solo admin) ---
